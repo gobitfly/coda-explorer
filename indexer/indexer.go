@@ -128,12 +128,12 @@ func exportBlock(block *types.Block, client *rpc.CodaClient) error {
 	logger.Infof("block mutated %v accounts", len(accountsInBlock))
 
 	for pubKey := range accountsInBlock {
-		logger.Infof("exporting account %v", pubKey)
+		//logger.Infof("exporting account %v", pubKey)
 		account, err := client.GetAccount(pubKey)
 		if err != nil {
 			return fmt.Errorf("error retrieving account data for account %v via rpc: %w", pubKey, err)
 		}
-		logger.Infof("account data retrieved")
+		//logger.Infof("account data retrieved")
 
 		account.FirstSeen = block.Ts
 		account.LastSeen = block.Ts
@@ -142,8 +142,9 @@ func exportBlock(block *types.Block, client *rpc.CodaClient) error {
 		if err != nil {
 			return fmt.Errorf("error saving account data for account %v: %w", pubKey, err)
 		}
-		logger.Infof("account data exported to db")
+		//logger.Infof("account data exported to db")
 	}
+	logger.Infof("accounts updated, saving block to db")
 
 	err = db.SaveBlock(block)
 	if err != nil {

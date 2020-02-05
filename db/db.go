@@ -105,6 +105,7 @@ func SaveBlock(block *types.Block) error {
 	}
 	defer tx.Rollback()
 
+	logger.Infof("saving block data")
 	_, err = tx.NamedExec(`INSERT INTO blocks (
 									statehash,
 									previousstatehash,
@@ -141,6 +142,7 @@ func SaveBlock(block *types.Block) error {
 		return fmt.Errorf("error executing block insert db query: %w", err)
 	}
 
+	logger.Infof("saving snark job data")
 	for _, sj := range block.SnarkJobs {
 		_, err = tx.NamedExec(`INSERT INTO snarkjobs (blockstatehash, index, jobids, prover, fee) VALUES (:blockstatehash, :index, :jobids, :prover, :fee) ON CONFLICT DO NOTHING`, sj)
 		if err != nil {
@@ -154,6 +156,7 @@ func SaveBlock(block *types.Block) error {
 
 	}
 
+	logger.Infof("saving fee transfers data")
 	for _, ft := range block.FeeTransfers {
 		_, err := tx.NamedExec(`INSERT INTO feetransfers (blockstatehash, index, recipient, fee) VALUES (:blockstatehash, :index, :recipient, :fee) ON CONFLICT DO NOTHING `, ft)
 		if err != nil {
@@ -161,6 +164,7 @@ func SaveBlock(block *types.Block) error {
 		}
 	}
 
+	logger.Infof("saving user jobs data")
 	for _, uj := range block.UserJobs {
 		_, err := tx.NamedExec(`INSERT INTO userjobs (blockstatehash, index, id, sender, recipient, memo, fee, amount, nonce, delegation) VALUES (:blockstatehash, :index, :id, :sender, :recipient, :memo, :fee, :amount, :nonce, :delegation) ON CONFLICT DO NOTHING`, uj)
 		if err != nil {
@@ -178,11 +182,15 @@ func SaveBlock(block *types.Block) error {
 		}
 	}
 
+	logger.Infof("updating accounts table")
 	_, err = tx.Exec("UPDATE accounts SET blocksproposed = blocksproposed + 1 WHERE publickey = $1", block.Creator)
 	if err != nil {
 		return fmt.Errorf("error incrementing blocksproposed column of accounts table: %w", err)
 	}
-	tx.Commit()
+
+	logger.Infof("committing tx")
+
+	err = tx.Commit()
 	return err
 }
 
