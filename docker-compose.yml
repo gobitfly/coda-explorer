@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+  reverse-proxy:
+    image: traefik:v2.0
+    command: --providers.docker --providers.docker.exposedbydefault=false
+    ports:
+      - "80:80"
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+  postgres:
+    image: "postgres"
+    container_name: "postgres"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_MULTIPLE_DATABASES=coda
+    ports:
+      - "127.0.0.1:54320:5432"
+    volumes:
+      - ./coda-postgres-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  coda:
+    image: "codaprotocol/coda-daemon:0.0.11-beta5-release-0.0.11-beta5-redux-336f4f4"
+    container_name: "coda"
+    command: "daemon -config-directory /root/.coda-config -discovery-port 8303 -peer /dns4/seed-one.genesis.o1test.net/tcp/10002/ipfs/12D3KooWP7fTKbyiUcYJGajQDpCFo2rDexgTHFJTxCH8jvcL1eAH -peer /dns4/seed-two.genesis.o1test.net/tcp/10002/ipfs/12D3KooWL9ywbiXNfMBqnUKHSB1Q1BaHFNUzppu6JLMVn9TTPFSA"
+    ports:
+      - "8302:8302"
+      - "8303:8303"
+    volumes:
+      - ./coda-node-data:/root/

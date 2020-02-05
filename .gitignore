@@ -1,0 +1,5 @@
+.idea/
+bin/
+clean.sql
+coda-node-data/
+coda-postgres-data/
