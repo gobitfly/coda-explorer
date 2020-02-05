@@ -135,21 +135,21 @@ type newBlockNotification struct {
 func (cc *CodaClient) GetLastBlocks(lookback int) ([]*types.Block, error) {
 
 	query := `{
-				blocks(last: ` + strconv.Itoa(lookback) + `) {
+				blocks(first: ` + strconv.Itoa(lookback) + `) {
 					nodes {
 						stateHash
 						protocolState {
 							previousStateHash
 							consensusState {
-							blockchainLength
-							epoch
-							slot
-							totalCurrency
+								blockchainLength
+								epoch
+								slot
+								totalCurrency
 							}
 							blockchainState {
-							snarkedLedgerHash
-							stagedLedgerHash
-							date
+								snarkedLedgerHash
+								stagedLedgerHash
+								date
 							}
 						}
 						transactions {
@@ -181,7 +181,7 @@ func (cc *CodaClient) GetLastBlocks(lookback int) ([]*types.Block, error) {
 				}
 			}`
 
-	var resp lastBlockHashesResponse
+	var resp getBlocksResponse
 	err := cc.getData(query, &resp)
 	if err != nil {
 		return nil, fmt.Errorf("error executing last block hashes graphql query: %w", err)
@@ -189,16 +189,63 @@ func (cc *CodaClient) GetLastBlocks(lookback int) ([]*types.Block, error) {
 
 	blocks := make([]*types.Block, len(resp.Data.Blocks.Nodes))
 
-	for i, block := range resp.Data.Blocks.Nodes {
-		b := &types.Block{}
+	for i, b := range resp.Data.Blocks.Nodes {
 
-		b.StateHash = block.StateHash
-		b.Epoch = util.MustParseInt(block.ProtocolState.ConsensusState.Epoch)
-		b.Height = util.MustParseInt(block.ProtocolState.ConsensusState.BlockchainLength)
-		b.Slot = util.MustParseInt(block.ProtocolState.ConsensusState.Slot)
-		b.PreviousStateHash = block.ProtocolState.PreviousStateHash
+		block := &types.Block{
+			StateHash:         b.StateHash,
+			PreviousStateHash: b.ProtocolState.PreviousStateHash,
+			SnarkedLedgerHash: b.ProtocolState.BlockchainState.SnarkedLedgerHash,
+			StagedLedgerHash:  b.ProtocolState.BlockchainState.StagedLedgerHash,
+			Coinbase:          util.MustParseInt(b.Transactions.Coinbase),
+			Creator:           b.CreatorAccount.PublicKey,
+			Slot:              util.MustParseInt(b.ProtocolState.ConsensusState.Slot),
+			Height:            util.MustParseInt(b.ProtocolState.ConsensusState.BlockchainLength),
+			Epoch:             util.MustParseInt(b.ProtocolState.ConsensusState.Epoch),
+			Ts:                util.MustParseJsTimestamp(b.ProtocolState.BlockchainState.Date),
+			TotalCurrency:     util.MustParseInt(b.ProtocolState.ConsensusState.TotalCurrency),
+			UserCommandsCount: len(b.Transactions.UserCommands),
+			SnarkJobsCount:    len(b.SnarkJobs),
+			FeeTransferCount:  len(b.Transactions.FeeTransfer),
+			UserJobs:          make([]*types.UserJob, len(b.Transactions.UserCommands)),
+			SnarkJobs:         make([]*types.SnarkJob, len(b.SnarkJobs)),
+			FeeTransfers:      make([]*types.FeeTransfer, len(b.Transactions.FeeTransfer)),
+		}
 
-		blocks[i] = b
+		for i, job := range b.Transactions.UserCommands {
+			block.UserJobs[i] = &types.UserJob{
+				BlockStateHash: b.StateHash,
+				Index:          i,
+				ID:             job.ID,
+				Sender:         job.From,
+				Recipient:      job.To,
+				Memo:           job.Memo,
+				Fee:            util.MustParseInt(job.Fee),
+				Amount:         util.MustParseInt(job.Amount),
+				Nonce:          job.Nonce,
+				Delegation:     job.IsDelegation,
+			}
+		}
+
+		for i, sj := range b.SnarkJobs {
+			block.SnarkJobs[i] = &types.SnarkJob{
+				BlockStateHash: b.StateHash,
+				Index:          i,
+				Jobids:         sj.WorkIds,
+				Prover:         sj.Prover,
+				Fee:            util.MustParseInt(sj.Fee),
+			}
+		}
+
+		for i, ft := range b.Transactions.FeeTransfer {
+			block.FeeTransfers[i] = &types.FeeTransfer{
+				BlockStateHash: b.StateHash,
+				Index:          i,
+				Recipient:      ft.Recipient,
+				Fee:            util.MustParseInt(ft.Fee),
+			}
+		}
+
+		blocks[i] = block
 	}
 
 	sort.Slice(blocks, func(i, j int) bool {
@@ -208,7 +255,7 @@ func (cc *CodaClient) GetLastBlocks(lookback int) ([]*types.Block, error) {
 }
 
 // Type for parsing the last block hashes graphql query response
-type lastBlockHashesResponse struct {
+type getBlocksResponse struct {
 	Data struct {
 		Blocks struct {
 			Nodes []struct {
@@ -257,169 +304,10 @@ type lastBlockHashesResponse struct {
 	} `json:"data"`
 }
 
-// GetBlock retrieves a block by its state hash
-func (cc *CodaClient) GetBlock(stateHash string) (*types.Block, error) {
-	query := `
-		query {
-		  block(stateHash: "` + stateHash + `") {
-			stateHash
-			protocolState {
-			  previousStateHash
-			  consensusState {
-				blockchainLength
-				epoch
-				slot
-				totalCurrency
-			  }
-			  blockchainState {
-				snarkedLedgerHash
-				stagedLedgerHash
-				date
-			  }
-			}
-			transactions {
-			  coinbase
-			  feeTransfer {
-				fee
-				recipient
-			  }
-			  userCommands {
-				amount
-				fee
-				from
-				id
-				isDelegation
-				memo
-				nonce
-				to
-			  }
-			}
-			snarkJobs {
-			  fee
-			  prover
-			  workIds
-			}
-			creatorAccount {
-			  publicKey
-			}
-		  }
-		}
-	`
-
-	var resp getBlockResponse
-	err := cc.getData(query, &resp)
-	if err != nil {
-		return nil, fmt.Errorf("error executing get block graphql query for block %v: %w", stateHash, err)
-	}
-
-	block := &types.Block{
-		StateHash:         stateHash,
-		PreviousStateHash: resp.Data.Block.ProtocolState.PreviousStateHash,
-		SnarkedLedgerHash: resp.Data.Block.ProtocolState.BlockchainState.SnarkedLedgerHash,
-		StagedLedgerHash:  resp.Data.Block.ProtocolState.BlockchainState.StagedLedgerHash,
-		Coinbase:          util.MustParseInt(resp.Data.Block.Transactions.Coinbase),
-		Creator:           resp.Data.Block.CreatorAccount.PublicKey,
-		Slot:              util.MustParseInt(resp.Data.Block.ProtocolState.ConsensusState.Slot),
-		Height:            util.MustParseInt(resp.Data.Block.ProtocolState.ConsensusState.BlockchainLength),
-		Epoch:             util.MustParseInt(resp.Data.Block.ProtocolState.ConsensusState.Epoch),
-		Ts:                util.MustParseJsTimestamp(resp.Data.Block.ProtocolState.BlockchainState.Date),
-		TotalCurrency:     util.MustParseInt(resp.Data.Block.ProtocolState.ConsensusState.TotalCurrency),
-		UserCommandsCount: len(resp.Data.Block.Transactions.UserCommands),
-		SnarkJobsCount:    len(resp.Data.Block.SnarkJobs),
-		FeeTransferCount:  len(resp.Data.Block.Transactions.FeeTransfer),
-		UserJobs:          make([]*types.UserJob, len(resp.Data.Block.Transactions.UserCommands)),
-		SnarkJobs:         make([]*types.SnarkJob, len(resp.Data.Block.SnarkJobs)),
-		FeeTransfers:      make([]*types.FeeTransfer, len(resp.Data.Block.Transactions.FeeTransfer)),
-	}
-
-	for i, job := range resp.Data.Block.Transactions.UserCommands {
-		block.UserJobs[i] = &types.UserJob{
-			BlockStateHash: stateHash,
-			Index:          i,
-			ID:             job.ID,
-			Sender:         job.From,
-			Recipient:      job.To,
-			Memo:           job.Memo,
-			Fee:            util.MustParseInt(job.Fee),
-			Amount:         util.MustParseInt(job.Amount),
-			Nonce:          job.Nonce,
-			Delegation:     job.IsDelegation,
-		}
-	}
-
-	for i, sj := range resp.Data.Block.SnarkJobs {
-		block.SnarkJobs[i] = &types.SnarkJob{
-			BlockStateHash: stateHash,
-			Index:          i,
-			Jobids:         sj.WorkIds,
-			Prover:         sj.Prover,
-			Fee:            util.MustParseInt(sj.Fee),
-		}
-	}
-
-	for i, ft := range resp.Data.Block.Transactions.FeeTransfer {
-		block.FeeTransfers[i] = &types.FeeTransfer{
-			BlockStateHash: stateHash,
-			Index:          i,
-			Recipient:      ft.Recipient,
-			Fee:            util.MustParseInt(ft.Fee),
-		}
-	}
-
-	return block, nil
-}
-
-// Type for parsing the get block graphql query response
-type getBlockResponse struct {
-	Data struct {
-		Block struct {
-			StateHash     string `json:"stateHash"`
-			ProtocolState struct {
-				BlockchainState struct {
-					Date              string `json:"date"`
-					SnarkedLedgerHash string `json:"snarkedLedgerHash"`
-					StagedLedgerHash  string `json:"stagedLedgerHash"`
-				} `json:"blockchainState"`
-				ConsensusState struct {
-					BlockchainLength string `json:"blockchainLength"`
-					Epoch            string `json:"epoch"`
-					Slot             string `json:"slot"`
-					TotalCurrency    string `json:"totalCurrency"`
-				} `json:"consensusState"`
-				PreviousStateHash string `json:"previousStateHash"`
-			} `json:"protocolState"`
-			SnarkJobs []struct {
-				Fee     string  `json:"fee"`
-				Prover  string  `json:"prover"`
-				WorkIds []int64 `json:"workIds"`
-			} `json:"snarkJobs"`
-			Transactions struct {
-				Coinbase    string `json:"coinbase"`
-				FeeTransfer []struct {
-					Fee       string `json:"fee"`
-					Recipient string `json:"recipient"`
-				} `json:"feeTransfer"`
-				UserCommands []struct {
-					Amount       string `json:"amount"`
-					Fee          string `json:"fee"`
-					From         string `json:"from"`
-					ID           string `json:"id"`
-					IsDelegation bool   `json:"isDelegation"`
-					Memo         string `json:"memo"`
-					Nonce        int    `json:"nonce"`
-					To           string `json:"to"`
-				} `json:"userCommands"`
-			} `json:"transactions"`
-			CreatorAccount struct {
-				PublicKey string `json:"publicKey"`
-			} `json:"creatorAccount"`
-		} `json:"block"`
-	} `json:"data"`
-}
-
 // GetAccount retrieves account information by the account public key
 func (cc *CodaClient) GetAccount(publicKey string) (*types.Account, error) {
 
+	logger.Printf("receiving data for account %v", publicKey)
 	query := `query {
   				account(publicKey: "` + publicKey + `") {
 					balance {

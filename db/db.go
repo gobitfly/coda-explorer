@@ -94,10 +94,7 @@ func SaveAccount(account *types.Account) error {
 func SaveBlock(block *types.Block) error {
 
 	exists, err := BlockExists(block.StateHash)
-	if err != nil {
-		return fmt.Errorf("error checking if block %v has already been indexed: %w", block.StateHash, err)
-	}
-	if exists {
+	if err == nil && exists {
 		return fmt.Errorf("error block %v has already been indexed", block.StateHash)
 	}
 

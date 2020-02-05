@@ -19,6 +19,7 @@ package indexer
 import (
 	"coda-explorer/db"
 	"coda-explorer/rpc"
+	"coda-explorer/types"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -33,15 +34,14 @@ func Start(rpcEndpoint string) {
 	newBlockChan := make(chan string)
 
 	go client.WatchNewBlocks(newBlockChan)
-	go handleNewBlocks(newBlockChan, client)
 
 	go exportDaemonStatus(client, time.Minute*10)
 
-	go forkChecker(client, time.Minute)
+	go checkNewBlocks(newBlockChan, client, time.Minute)
 }
 
 // Periodically checks for forked or missing blocks
-func forkChecker(client *rpc.CodaClient, intv time.Duration) {
+func checkNewBlocks(newBlockChan chan string, client *rpc.CodaClient, intv time.Duration) {
 	ticker := time.NewTicker(intv)
 	defer ticker.Stop()
 
@@ -83,12 +83,12 @@ func forkChecker(client *rpc.CodaClient, intv time.Duration) {
 						logger.Errorf("error rolling back orphaned block %v at height %v: %w", hash, b.Height, err)
 						continue
 					}
-					err = exportBlock(b.StateHash, client)
+					err = exportBlock(b, client)
 					if err != nil {
 						logger.Errorf("error exporting block %v at height %v: %w", b.StateHash, b.Height, err)
 					}
 				} else if !present {
-					err := exportBlock(b.StateHash, client)
+					err := exportBlock(b, client)
 					if err != nil {
 						logger.Errorf("error exporting block %v at height %v: %w", b.StateHash, b.Height, err)
 					}
@@ -98,40 +98,20 @@ func forkChecker(client *rpc.CodaClient, intv time.Duration) {
 	}
 }
 
-// Listens for new block events and exports any received new block
-func handleNewBlocks(newBlockChan chan string, client *rpc.CodaClient) {
-	for {
-		select {
-		case newBlock := <-newBlockChan:
-			err := exportBlock(newBlock, client)
-			if err != nil {
-				logger.Errorf("error exporting new block %v: %w", newBlock, err)
-			}
-		}
-	}
-}
-
 // Exports a block to the database, does nothing if the block has already previously been exported
-func exportBlock(stateHash string, client *rpc.CodaClient) error {
-	logger.Infof("exporting block %v", stateHash)
-	exists, err := db.BlockExists(stateHash)
+func exportBlock(block *types.Block, client *rpc.CodaClient) error {
+	logger.Infof("exporting block %v", block.StateHash)
+	exists, err := db.BlockExists(block.StateHash)
 
 	if err == nil && exists {
-		logger.Infof("block %v already exported", stateHash)
+		logger.Infof("block %v already exported", block.StateHash)
 		return nil
 	}
 
 	start := time.Now()
 
-	block, err := client.GetBlock(stateHash)
-	if err != nil {
-		return fmt.Errorf("error retrieving block data for block %v via rpc: %w", stateHash, err)
-	}
-	logger.Infof("block data received")
-
 	accountsInBlock := make(map[string]bool)
 	accountsInBlock[block.Creator] = true
-	logger.Println(block.Creator)
 
 	for _, uj := range block.UserJobs {
 		accountsInBlock[uj.Sender] = true
@@ -167,7 +147,7 @@ func exportBlock(stateHash string, client *rpc.CodaClient) error {
 
 	err = db.SaveBlock(block)
 	if err != nil {
-		return fmt.Errorf("error saving block data for block %v: %w", stateHash, err)
+		return fmt.Errorf("error saving block data for block %v: %w", block.StateHash, err)
 	}
 	logger.WithField("txs", block.UserCommandsCount).WithField("snarks", block.SnarkJobsCount).WithField("feeTransfers", block.FeeTransferCount).Infof("block data exported to db, took %v", time.Since(start))
 
