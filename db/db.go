@@ -108,6 +108,7 @@ func SaveBlock(block *types.Block) error {
 	logger.Infof("saving block data")
 	_, err = tx.NamedExec(`INSERT INTO blocks (
 									statehash,
+                    				canonical,
 									previousstatehash,
 									snarkedledgerhash,
 									stagedledgerhash,
@@ -123,6 +124,7 @@ func SaveBlock(block *types.Block) error {
 									feetransfercount
 								) VALUES (
 									:statehash,
+									:canonical,
 									:previousstatehash,
 									:snarkedledgerhash,
 									:stagedledgerhash,
@@ -153,7 +155,6 @@ func SaveBlock(block *types.Block) error {
 		if err != nil {
 			return fmt.Errorf("error incrementing snarkjobs column of account table for pk %v: %w", sj.Prover, err)
 		}
-
 	}
 
 	logger.Infof("saving fee transfers data")
@@ -186,6 +187,116 @@ func SaveBlock(block *types.Block) error {
 	_, err = tx.Exec("UPDATE accounts SET blocksproposed = blocksproposed + 1 WHERE publickey = $1", block.Creator)
 	if err != nil {
 		return fmt.Errorf("error incrementing blocksproposed column of accounts table: %w", err)
+	}
+
+	logger.Infof("committing tx")
+
+	err = tx.Commit()
+	return err
+}
+
+func MarkBlockCanonical(block *types.Block) error {
+	tx, err := DB.Beginx()
+
+	if err != nil {
+		return fmt.Errorf("error starting db tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	var canonical bool
+	err = tx.Get(&canonical, "SELECT canonical FROM blocks WHERE statehash = $1", block.StateHash)
+	if err != nil {
+		return fmt.Errorf("error retrieving canonical status from db: %w", err)
+	}
+
+	if canonical {
+		logger.Infof("block %v at height %v has already been marked as canonical", block.StateHash, block.Height)
+		return nil
+	}
+
+	_, err = tx.Exec(`UPDATE blocks SET canonical = true WHERE statehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block canonical update db query: %w", err)
+	}
+
+	logger.Infof("updating snark jobs statistics")
+	for _, sj := range block.SnarkJobs {
+		_, err := tx.Exec("UPDATE accounts SET snarkjobs = snarkjobs + 1 WHERE publickey = $1", sj.Prover)
+		if err != nil {
+			return fmt.Errorf("error incrementing snarkjobs column of account table for pk %v: %w", sj.Prover, err)
+		}
+	}
+
+	logger.Infof("updating user jobs statistics")
+	for _, uj := range block.UserJobs {
+		_, err = tx.Exec("UPDATE accounts SET txsent = txsent + 1 WHERE publickey = $1", uj.Sender)
+		if err != nil {
+			return fmt.Errorf("error incrementing txsent column of account table for pk %v: %w", uj.Sender, err)
+		}
+
+		_, err = tx.Exec("UPDATE accounts SET txreceived = txreceived + 1 WHERE publickey = $1", uj.Recipient)
+		if err != nil {
+			return fmt.Errorf("error incrementing txreceived column of account table for pk %v: %w", uj.Recipient, err)
+		}
+	}
+
+	logger.Infof("updating proposed blocks statistics table")
+	_, err = tx.Exec("UPDATE accounts SET blocksproposed = blocksproposed + 1 WHERE publickey = $1", block.Creator)
+	if err != nil {
+		return fmt.Errorf("error incrementing blocksproposed column of accounts table: %w", err)
+	}
+
+	logger.Infof("committing tx")
+
+	err = tx.Commit()
+	return err
+}
+
+func MarkBlockOrphaned(block *types.Block) error {
+	tx, err := DB.Beginx()
+
+	if err != nil {
+		return fmt.Errorf("error starting db tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	var canonical bool
+	err = tx.Get(&canonical, "SELECT canonical FROM blocks WHERE statehash = $1", block.StateHash)
+	if err != nil {
+		return fmt.Errorf("error retrieving canonical status from db: %w", err)
+	}
+
+	if !canonical {
+		logger.Infof("block %v at height %v has already been marked as orphaned", block.StateHash, block.Height)
+		return nil
+	}
+
+	_, err = tx.Exec(`UPDATE blocks SET canonical = false WHERE statehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block canonical update db query: %w", err)
+	}
+
+	logger.Infof("updating snark jobs statistics")
+	for _, sj := range block.SnarkJobs {
+		_, err := tx.Exec("UPDATE accounts SET snarkjobs = snarkjobs - 1 WHERE publickey = $1", sj.Prover)
+		if err != nil {
+			return fmt.Errorf("error incrementing snarkjobs column of account table for pk %v: %w", sj.Prover, err)
+		}
+	}
+
+	logger.Infof("updating user jobs statistics")
+	for _, uj := range block.UserJobs {
+		_, err = tx.Exec("UPDATE accounts SET txsent = txsent -+ 1 WHERE publickey = $1", uj.Sender)
+		if err != nil {
+			return fmt.Errorf("error incrementing txsent column of account table for pk %v: %w", uj.Sender, err)
+		}
+
+		_, err = tx.Exec("UPDATE accounts SET txreceived = txreceived - 1 WHERE publickey = $1", uj.Recipient)
+		if err != nil {
+			return fmt.Errorf("error incrementing txreceived column of account table for pk %v: %w", uj.Recipient, err)
+		}
 	}
 
 	logger.Infof("committing tx")
@@ -274,7 +385,7 @@ func GetBlockByHeight(height int) (*types.Block, error) {
 // GetLastBlockHashes retrieves a set of blocks from the database by their canonical height
 func GetLastBlockHashes(lookback int) ([]*types.BlockHashNumber, error) {
 	var hashes []*types.BlockHashNumber
-	err := DB.Select(&hashes, "SELECT statehash, height FROM blocks ORDER BY height DESC limit $1", lookback)
+	err := DB.Select(&hashes, "SELECT statehash, canonical, previousstatehash, height FROM blocks ORDER BY height DESC limit $1", lookback)
 
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving last block hashes: %w", err)

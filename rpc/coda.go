@@ -44,7 +44,7 @@ type CodaClient struct {
 func NewCodaClient(host string) *CodaClient {
 
 	cc := &CodaClient{
-		httpClient: &http.Client{Timeout: time.Second * 10},
+		httpClient: &http.Client{Timeout: time.Second * 60},
 		host:       host,
 	}
 

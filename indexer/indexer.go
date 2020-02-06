@@ -22,6 +22,7 @@ import (
 	"coda-explorer/types"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"sync"
 	"time"
 )
 
@@ -38,6 +39,8 @@ func Start(rpcEndpoint string) {
 	go exportDaemonStatus(client, time.Minute*10)
 
 	go checkNewBlocks(newBlockChan, client, time.Minute)
+
+	checkBlocks(client, 1000)
 }
 
 // Periodically checks for forked or missing blocks
@@ -48,54 +51,106 @@ func checkNewBlocks(newBlockChan chan string, client *rpc.CodaClient, intv time.
 	for {
 		select {
 		case <-ticker.C:
-			dbBlocks, err := db.GetLastBlockHashes(10)
-			if err != nil {
-				logger.Errorf("error retrieving last 10 blocks from the databases: %w", err)
-				continue
-			}
-			dbBlocksMap := make(map[int]string)
-			for _, b := range dbBlocks {
-				dbBlocksMap[b.Height] = b.StateHash
-			}
+			checkBlocks(client, 10)
+		case <-newBlockChan:
+			checkBlocks(client, 10)
+		}
+	}
+}
 
-			nodeBlocks, err := client.GetLastBlocks(10)
+var checkBlockMux = &sync.Mutex{}
+
+func checkBlocks(client *rpc.CodaClient, lookback int) {
+	checkBlockMux.Lock()
+	defer checkBlockMux.Unlock()
+
+	dbBlocks, err := db.GetLastBlockHashes(lookback)
+	if err != nil {
+		logger.Errorf("error retrieving last %v blocks from the databases: %w", lookback, err)
+		return
+	}
+	dbBlocksMap := make(map[int]string)
+	for _, b := range dbBlocks {
+		dbBlocksMap[b.Height] = b.StateHash
+	}
+
+	nodeBlocks, err := client.GetLastBlocks(lookback)
+	if err != nil {
+		logger.Errorf("error retrieving last %v blocks from the rpc node: %w", lookback, err)
+		return
+	}
+	for _, b := range nodeBlocks {
+		_, present := dbBlocksMap[b.Height]
+		if present {
+			// Block has already been properly indexed
+			continue
+		} else {
+			err := exportBlock(b, client)
 			if err != nil {
-				logger.Errorf("error retrieving last 10 blocks from the rpc node: %w", err)
-				continue
-			}
-			for _, b := range nodeBlocks {
-				hash, present := dbBlocksMap[b.Height]
-				if present && hash == b.StateHash {
-					// Block has already been properly indexed
-					continue
-				} else if present && hash != b.StateHash {
-					// Node block at given height is different to the block stored in the db for the same height
-					// Roll back the block present in the db and save the new block
-					logger.Infof("block at height %v stored in db is different to block at height %v in the node: %v != %v", b.Height, b.Height, hash, b.StateHash)
-					logger.Infof("rolling back block %v at height %v", hash, b.Height)
-					orphanedBlock, err := db.GetBlockByHash(hash)
-					if err != nil {
-						logger.Errorf("error retrieving orphaned block %v at height %v from the db: %w", hash, b.Height, err)
-						continue
-					}
-					err = db.RollbackBlock(orphanedBlock)
-					if err != nil {
-						logger.Errorf("error rolling back orphaned block %v at height %v: %w", hash, b.Height, err)
-						continue
-					}
-					err = exportBlock(b, client)
-					if err != nil {
-						logger.Errorf("error exporting block %v at height %v: %w", b.StateHash, b.Height, err)
-					}
-				} else if !present {
-					err := exportBlock(b, client)
-					if err != nil {
-						logger.Errorf("error exporting block %v at height %v: %w", b.StateHash, b.Height, err)
-					}
-				}
+				logger.Errorf("error exporting block %v at height %v: %w", b.StateHash, b.Height, err)
 			}
 		}
 	}
+
+	dbBlocks, err = db.GetLastBlockHashes(lookback)
+	if err != nil {
+		logger.Errorf("error retrieving last %v blocks from the databases: %w", lookback, err)
+		return
+	}
+
+	currentHash := ""
+
+	for i, block := range dbBlocks {
+		if i == 0 {
+			currentHash = block.PreviousStateHash
+
+			if !block.Canonical {
+				blockData, err := db.GetBlockByHash(block.StateHash)
+				if err != nil {
+					logger.Errorf("error retrieving data for block %v at height %v: %w", block.StateHash, block.Height, err)
+					return
+				}
+
+				err = db.MarkBlockCanonical(blockData)
+				if err != nil {
+					logger.Errorf("error marking block %v at height %v as canonical: %w", block.StateHash, block.Height, err)
+					return
+				}
+			}
+		} else {
+			if block.StateHash == currentHash && !block.Canonical { // block is part of the canonical chain but currently not marked as canonical
+				logger.Infof("marking block %v at height %v as canonical", block.StateHash, block.Height)
+				blockData, err := db.GetBlockByHash(block.StateHash)
+				if err != nil {
+					logger.Errorf("error retrieving data for block %v at height %v: %w", block.StateHash, block.Height, err)
+					return
+				}
+
+				err = db.MarkBlockCanonical(blockData)
+				if err != nil {
+					logger.Errorf("error marking block %v at height %v as canonical: %w", block.StateHash, block.Height, err)
+					return
+				}
+				currentHash = block.PreviousStateHash
+			} else if block.StateHash != currentHash && block.Canonical { // block is not part of the canonical chain but currently marked as canonical
+				logger.Infof("marking block %v at height %v as orphaned", block.StateHash, block.Height)
+				blockData, err := db.GetBlockByHash(block.StateHash)
+				if err != nil {
+					logger.Errorf("error retrieving data for block %v at height %v: %w", block.StateHash, block.Height, err)
+					return
+				}
+
+				err = db.MarkBlockOrphaned(blockData)
+				if err != nil {
+					logger.Errorf("error marking block %v at height %v as canonical: %w", block.StateHash, block.Height, err)
+					return
+				}
+			} else if block.Canonical {
+				currentHash = block.PreviousStateHash
+			}
+		}
+	}
+
 }
 
 // Exports a block to the database, does nothing if the block has already previously been exported

@@ -24,6 +24,7 @@ import (
 // Block represents a row of the blocks db table
 type Block struct {
 	StateHash         string    `db:"statehash"`
+	Canonical         bool      `db:"canonical"`
 	PreviousStateHash string    `db:"previousstatehash"`
 	SnarkedLedgerHash string    `db:"snarkedledgerhash"`
 	StagedLedgerHash  string    `db:"stagedledgerhash"`
@@ -43,10 +44,12 @@ type Block struct {
 	UserJobs     []*UserJob
 }
 
-// BlockHashNumber is a helper type that contains only the hash and height of a block
+// ThinBlock is a helper type that contains only the hash, the parent hash, the height and the canonical status of a block
 type BlockHashNumber struct {
-	StateHash string `db:"statehash"`
-	Height    int    `db:"height"`
+	StateHash         string `db:"statehash"`
+	Canonical         bool   `db:"canonical"`
+	PreviousStateHash string `db:"previousstatehash"`
+	Height            int    `db:"height"`
 }
 
 // SnarkJob represents a row of the snarkjobs db table

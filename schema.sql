@@ -14,9 +14,19 @@
  *    limitations under the License.
  */
 
+drop table blocks;
+drop table snarkjobs;
+drop table feetransfers;
+drop table userjobs;
+drop table accounts;
+drop table accounttransactions;
+drop table daemonstatus;
+drop table statistics;
+
 create table if not exists blocks
 (
     statehash         varchar(200) not null,
+    canonical         bool         not null,
     previousstatehash varchar(200) not null,
     snarkedledgerhash varchar(200) not null,
     stagedledgerhash  varchar(200) not null,
@@ -30,8 +40,7 @@ create table if not exists blocks
     usercommandscount int          not null,
     snarkjobscount    int          not null,
     feetransfercount  int          not null,
-    primary key (statehash),
-    unique (statehash, height)
+    primary key (statehash)
 );
 create index idx_blocks_creator on blocks (creator);
 create index idx_blocks_ts on blocks (ts);
