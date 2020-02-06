@@ -55,6 +55,7 @@ type BlockHashNumber struct {
 // SnarkJob represents a row of the snarkjobs db table
 type SnarkJob struct {
 	BlockStateHash string        `db:"blockstatehash"`
+	Canonical      bool          `db:"canonical"`
 	Index          int           `db:"index"`
 	Jobids         pq.Int64Array `db:"jobids"`
 	Prover         string        `db:"prover"`
@@ -64,6 +65,7 @@ type SnarkJob struct {
 // FeeTransfer represents a row of the feetransfers db table
 type FeeTransfer struct {
 	BlockStateHash string `db:"blockstatehash"`
+	Canonical      bool   `db:"canonical"`
 	Index          int    `db:"index"`
 	Recipient      string `db:"recipient"`
 	Fee            int    `db:"fee"`
@@ -72,6 +74,7 @@ type FeeTransfer struct {
 // UserJob represents a row of the userjobs db table
 type UserJob struct {
 	BlockStateHash string `db:"blockstatehash"`
+	Canonical      bool   `db:"canonical"`
 	Index          int    `db:"index"`
 	ID             string `db:"id"`
 	Sender         string `db:"sender"`

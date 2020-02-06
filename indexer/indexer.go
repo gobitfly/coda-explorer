@@ -155,7 +155,7 @@ func checkBlocks(client *rpc.CodaClient, lookback int) {
 
 // Exports a block to the database, does nothing if the block has already previously been exported
 func exportBlock(block *types.Block, client *rpc.CodaClient) error {
-	logger.Infof("exporting block %v", block.StateHash)
+	logger.Infof("exporting block %v at height %v", block.StateHash, block.Height)
 	exists, err := db.BlockExists(block.StateHash)
 
 	if err == nil && exists {

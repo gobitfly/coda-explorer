@@ -146,7 +146,7 @@ func SaveBlock(block *types.Block) error {
 
 	logger.Infof("saving snark job data")
 	for _, sj := range block.SnarkJobs {
-		_, err = tx.NamedExec(`INSERT INTO snarkjobs (blockstatehash, index, jobids, prover, fee) VALUES (:blockstatehash, :index, :jobids, :prover, :fee) ON CONFLICT DO NOTHING`, sj)
+		_, err = tx.NamedExec(`INSERT INTO snarkjobs (blockstatehash, canonical, index, jobids, prover, fee) VALUES (:blockstatehash, :canonical, :index, :jobids, :prover, :fee) ON CONFLICT DO NOTHING`, sj)
 		if err != nil {
 			return fmt.Errorf("error executing snark job insert db query: %w", err)
 		}
@@ -154,7 +154,7 @@ func SaveBlock(block *types.Block) error {
 
 	logger.Infof("saving fee transfers data")
 	for _, ft := range block.FeeTransfers {
-		_, err := tx.NamedExec(`INSERT INTO feetransfers (blockstatehash, index, recipient, fee) VALUES (:blockstatehash, :index, :recipient, :fee) ON CONFLICT DO NOTHING `, ft)
+		_, err := tx.NamedExec(`INSERT INTO feetransfers (blockstatehash, canonical, index, recipient, fee) VALUES (:blockstatehash, :canonical, :index, :recipient, :fee) ON CONFLICT DO NOTHING `, ft)
 		if err != nil {
 			return fmt.Errorf("error executing fee transfer insert db query: %w", err)
 		}
@@ -162,11 +162,20 @@ func SaveBlock(block *types.Block) error {
 
 	logger.Infof("saving user jobs data")
 	for _, uj := range block.UserJobs {
-		_, err := tx.NamedExec(`INSERT INTO userjobs (blockstatehash, index, id, sender, recipient, memo, fee, amount, nonce, delegation) VALUES (:blockstatehash, :index, :id, :sender, :recipient, :memo, :fee, :amount, :nonce, :delegation) ON CONFLICT DO NOTHING`, uj)
+		_, err := tx.NamedExec(`INSERT INTO userjobs (blockstatehash, canonical, index, id, sender, recipient, memo, fee, amount, nonce, delegation) VALUES (:blockstatehash, :canonical, :index, :id, :sender, :recipient, :memo, :fee, :amount, :nonce, :delegation) ON CONFLICT DO NOTHING`, uj)
 		if err != nil {
-			return fmt.Errorf("error executing fee transfer insert db query: %w", err)
+			return fmt.Errorf("error executing userjobs insert db query: %w", err)
 		}
 
+		_, err = tx.Exec("INSERT INTO accounttransactions (publickey, blockstatehash, canonical, id, ts) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;", uj.Sender, block.StateHash, false, uj.ID, block.Ts)
+		if err != nil {
+			return fmt.Errorf("error executing accounttransactions userjob sender insert db query: %w", err)
+		}
+
+		_, err = tx.Exec("INSERT INTO accounttransactions (publickey, blockstatehash, canonical, id, ts) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;", uj.Recipient, block.StateHash, false, uj.ID, block.Ts)
+		if err != nil {
+			return fmt.Errorf("error executing accounttransactions userjob recipient insert db query: %w", err)
+		}
 	}
 
 	logger.Infof("committing tx")
@@ -198,6 +207,30 @@ func MarkBlockCanonical(block *types.Block) error {
 
 	if err != nil {
 		return fmt.Errorf("error executing block canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE snarkjobs SET canonical = true WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block snarkjobs canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE feetransfers SET canonical = true WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block feetransfers canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE userjobs SET canonical = true WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block userjobs canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE accounttransactions SET canonical = true WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block accounttransactions canonical update db query: %w", err)
 	}
 
 	logger.Infof("updating snark jobs statistics")
@@ -256,6 +289,30 @@ func MarkBlockOrphaned(block *types.Block) error {
 
 	if err != nil {
 		return fmt.Errorf("error executing block canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE snarkjobs SET canonical = false WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block snarkjobs canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE feetransfers SET canonical = false WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block feetransfers canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE userjobs SET canonical = false WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block userjobs canonical update db query: %w", err)
+	}
+
+	_, err = tx.Exec(`UPDATE accounttransactions SET canonical = false WHERE blockstatehash = $1`, block.StateHash)
+
+	if err != nil {
+		return fmt.Errorf("error executing block accounttransactions canonical update db query: %w", err)
 	}
 
 	logger.Infof("updating snark jobs statistics")

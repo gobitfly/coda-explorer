@@ -49,6 +49,7 @@ create index idx_blocks_height on blocks (height);
 create table if not exists snarkjobs
 (
     blockstatehash varchar(200) not null,
+    canonical      bool         not null,
     index          int          not null,
     jobids         int[]        not null,
     prover         varchar(200) not null,
@@ -60,6 +61,7 @@ create index idx_snarkjobs_prover on snarkjobs (prover);
 create table if not exists feetransfers
 (
     blockstatehash varchar(200) not null,
+    canonical      bool         not null,
     index          int          not null,
     recipient      varchar(200) not null,
     fee            int          not null,
@@ -70,6 +72,7 @@ create index idx_feetransfers_recipient on feetransfers (recipient);
 create table if not exists userjobs
 (
     blockstatehash varchar(200)  not null,
+    canonical      bool          not null,
     index          int           not null,
     id             varchar(1000) not null,
     sender         varchar(200)  not null,
@@ -81,6 +84,7 @@ create table if not exists userjobs
     delegation     bool          not null,
     primary key (blockstatehash, index)
 );
+create index idx_userjobs_id on userjobs (id);
 
 create table if not exists accounts
 (
@@ -101,11 +105,14 @@ create index idx_accounts_firstseen on accounts (firstseen);
 
 create table if not exists accounttransactions
 (
-    publickey varchar(200)  not null,
-    id        varchar(1000) not null,
-    ts        timestamp     not null,
-    primary key (publickey, ts, id)
+    publickey      varchar(200)  not null,
+    blockstatehash varchar(200)  not null,
+    canonical      bool          not null,
+    id             varchar(1000) not null,
+    ts             timestamp     not null,
+    primary key (publickey, ts, blockstatehash, id)
 );
+create index idx_accounttransactions_blockstatehash on accounttransactions (blockstatehash);
 
 create table if not exists daemonstatus
 (
