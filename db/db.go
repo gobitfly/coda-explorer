@@ -150,11 +150,6 @@ func SaveBlock(block *types.Block) error {
 		if err != nil {
 			return fmt.Errorf("error executing snark job insert db query: %w", err)
 		}
-
-		_, err := tx.Exec("UPDATE accounts SET snarkjobs = snarkjobs + 1 WHERE publickey = $1", sj.Prover)
-		if err != nil {
-			return fmt.Errorf("error incrementing snarkjobs column of account table for pk %v: %w", sj.Prover, err)
-		}
 	}
 
 	logger.Infof("saving fee transfers data")
@@ -172,21 +167,6 @@ func SaveBlock(block *types.Block) error {
 			return fmt.Errorf("error executing fee transfer insert db query: %w", err)
 		}
 
-		_, err = tx.Exec("UPDATE accounts SET txsent = txsent + 1 WHERE publickey = $1", uj.Sender)
-		if err != nil {
-			return fmt.Errorf("error incrementing txsent column of account table for pk %v: %w", uj.Sender, err)
-		}
-
-		_, err = tx.Exec("UPDATE accounts SET txreceived = txreceived + 1 WHERE publickey = $1", uj.Recipient)
-		if err != nil {
-			return fmt.Errorf("error incrementing txreceived column of account table for pk %v: %w", uj.Recipient, err)
-		}
-	}
-
-	logger.Infof("updating accounts table")
-	_, err = tx.Exec("UPDATE accounts SET blocksproposed = blocksproposed + 1 WHERE publickey = $1", block.Creator)
-	if err != nil {
-		return fmt.Errorf("error incrementing blocksproposed column of accounts table: %w", err)
 	}
 
 	logger.Infof("committing tx")

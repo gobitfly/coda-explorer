@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -116,7 +117,7 @@ func (cc *CodaClient) WatchNewBlocks(newBlockChan chan string) {
 			logger.Infof("received %v via websocket subscriptions", string(message))
 
 			var parsedNotification *newBlockNotification
-			err = json.Unmarshal(message, parsedNotification)
+			err = json.Unmarshal([]byte(strings.Replace(string(message), `\`, "", -1)), parsedNotification)
 			if err != nil {
 				logger.Errorf("error parsing new block notifciation: %w:", err)
 				break
