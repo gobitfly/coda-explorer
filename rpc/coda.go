@@ -121,14 +121,22 @@ func (cc *CodaClient) WatchNewBlocks(newBlockChan chan string) {
 				logger.Errorf("error parsing new block notifciation: %w:", err)
 				break
 			}
-			newBlockChan <- parsedNotification.StateHash
+			newBlockChan <- parsedNotification.Payload.Data.NewBlock.StateHash
 		}
 		c.Close()
 	}
 }
 
 type newBlockNotification struct {
-	StateHash string `json:"stateHash"`
+	ID      string `json:"id"`
+	Payload struct {
+		Data struct {
+			NewBlock struct {
+				StateHash string `json:"stateHash"`
+			} `json:"newBlock"`
+		} `json:"data"`
+	} `json:"payload"`
+	Type string `json:"type"`
 }
 
 // GetLastBlocks retrieves the last <lookback> block hashes

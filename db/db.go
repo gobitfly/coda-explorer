@@ -288,7 +288,7 @@ func MarkBlockOrphaned(block *types.Block) error {
 
 	logger.Infof("updating user jobs statistics")
 	for _, uj := range block.UserJobs {
-		_, err = tx.Exec("UPDATE accounts SET txsent = txsent -+ 1 WHERE publickey = $1", uj.Sender)
+		_, err = tx.Exec("UPDATE accounts SET txsent = txsent - 1 WHERE publickey = $1", uj.Sender)
 		if err != nil {
 			return fmt.Errorf("error incrementing txsent column of account table for pk %v: %w", uj.Sender, err)
 		}
