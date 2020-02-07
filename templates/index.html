@@ -1,0 +1,248 @@
+{{ define "js"}}
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script>
+        var app = new Vue({
+            el: '#app',
+            delimiters: ['${', '}'], // Standard vuejs template syntax conflicts with golang template syntax
+            components: {},
+            data: {
+                updateIn: -1,
+                page: {{.}},
+            },
+            filters: {
+                fromNow(date) {
+                    return moment(date).fromNow();
+                },
+                formatCurrency(number) {
+                    return numbro(number).format({thousandSeparated: true});
+                }
+            },
+            created: function () {
+                this.tick();
+                setInterval(function () {
+                    this.tick();
+                }.bind(this), 1000);
+            },
+            methods: {
+                tick: function () {
+                    if (this.updateIn <= 0) {
+                        $.getJSON('/index/data', function (response) {
+                            this.page = response;
+                        }.bind(this));
+                        this.updateIn = 15;
+                    } else {
+                        this.updateIn--;
+                    }
+                }
+            }
+        })
+	</script>
+{{end}}
+{{ define "css"}}
+
+	<style>
+		.hero-container {
+			position: relative;
+			min-height: 250px;
+			width: 100%;
+			display: flex;
+			flex-direction: row-reverse;
+			align-items: center;
+			justify-content: center;
+			margin-top: 2rem;
+			margin-bottom: 1rem;
+			flex-wrap: wrap;
+			overflow: hidden;
+		}
+		.hero-image {
+			overflow: hidden;
+			flex: 1;
+			max-width: 500px;
+			min-width: 320px;
+			max-height: 400px;
+			min-height: 200px;
+		}
+
+		.hero-image svg {
+			overflow: hidden;
+			width: inherit;
+			height: inherit;
+		}
+
+		@media (max-width: 960px) {
+			.hero-image {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+			}
+			.hero-container {
+				flex-wrap: nowrap;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.hero-text {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-direction: column;
+			}
+
+			.hero-image svg {
+				opacity: 0.4;
+			}
+		}
+
+		.hero-text {
+			flex: 1;
+			min-width: 305px;
+			max-width: 500px;
+			z-index: 5;
+			border-radius: 5px;
+		}
+
+		[v-cloak] {
+			visibility: hidden;
+		}
+
+		.responsive-border-right {
+			border-right-color: rgb(222, 226, 230);
+			border-right-style: solid;
+			border-right-width: 1px;
+		}
+
+		@media (max-width: 767px) {
+			.responsive-border-right-l {
+				border: hidden;
+			}
+		}
+	</style>
+{{end}}
+{{ define "content"}}
+	<div id="app" v-cloak>
+		<h1 class="mt-4 text-center">Open Source <img src="img/CodaLogo.svg"> Chain Explorer</h1>
+		<div class="card">
+			<div class="card-body">
+				<style>
+					.fa-search {
+						right: 25px;
+					}
+				</style>
+				<div class="input-group typeahead-holder">
+					<input id="search-input" class="form-control mr-2 form-control-md typeahead" type="text" name="search" placeholder="Search by Public Key / Block Number / Block Hash" />
+					<span class="fas fa-search"></span>
+				</div>
+			</div>
+		</div>
+		<div class="card mt-2">
+			<div class="card-header">
+				<div class="row">
+					<div class="col-md-4 responsive-border-right responsive-border-right-l">
+						<div class="d-flex justify-content-between">
+							<div class="p-2">
+								<div class="text-secondary mb-0">Epoch</div>
+								<h5 class="font-weight-normal mb-0"> <span data-toggle="tooltip" data-placement="top" title="The most recent epoch">${ page.current_epoch }</span></h5>
+							</div>
+							<div class="text-center p-2">
+								<div class="text-secondary mb-0">Slot </div>
+								<h5 class="font-weight-normal mb-0">
+									<span data-toggle="tooltip" data-placement="top" title="The most recent slot">${ page.current_slot }</span>
+								</h5>
+							</div>
+							<div class="text-right p-2">
+								<div class="text-secondary mb-0">Height </div>
+								<h5 class="font-weight-normal mb-0">
+									<span data-toggle="tooltip" data-placement="top" title="The total length of the blockchain">${ page.current_height }</span>
+								</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 responsive-border-right responsive-border-right-l">
+						<div class="d-flex justify-content-between">
+							<div class="p-2">
+								<div class="text-secondary mb-0">Active Validators </div>
+								<h5 class="font-weight-normal mb-0">
+									<span data-toggle="tooltip" data-placement="top" title="The number of currently active validators">${ page.active_validators }</span>
+								</h5>
+							</div>
+							<div class="text-right p-2">
+								<div class="text-secondary mb-0">Active Workers </div>
+								<h5 class="font-weight-normal mb-0">
+									<span data-toggle="tooltip" data-placement="top" title="The number of currently active snark workers">${ page.active_workers }</span>
+								</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="d-flex justify-content-between">
+							<div class="p-2">
+								<div class="text-secondary mb-0">Staked Coda </div>
+								<h5 class="font-weight-normal mb-0">
+									<span data-toggle="tooltip" data-placement="top" title="Amount of Ether currently staked">${ page.total_staked }</span>
+								</h5>
+							</div>
+							<div class="text-right p-2">
+								<div class="text-secondary mb-0">Total supply </div>
+								<h5 class="font-weight-normal mb-0">
+									<span data-toggle="tooltip" data-placement="top" title="Total currency supply">${page.total_supply | formatCurrency }</span>
+								</h5>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card mt-2">
+			<div class="card-header">
+				<h3 class="card-titler">
+					<i class="fa fa-cubes"></i> Most recent blocks
+					<a class="btn btn-primary btn-sm float-right" href="/blocks">View more</a>
+				</h3>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-sm">
+						<thead>
+						<tr>
+							<th></th>
+							<th>Height</th>
+							<th>Epoch</th>
+							<th>Slot</th>
+							<th>Time</th>
+							<th>Proposer</th>
+							<th>Root Hash</th>
+							<th>User Jobs</th>
+							<th>Snark Jobs</th>
+							<th>Reward</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr v-for="block in page.blocks" v-bind:class="{ 'text-muted': !block.canonical }">
+							<th>
+								<i v-if="block.canonical" class="fas fa-check text-success" data-toggle="tooltip" data-placement="top" title="This block is part of the canonical chain"></i>
+								<i v-if="!block.canonical" class="fas fa-times text-danger" data-toggle="tooltip" data-placement="top" title="This block is not part of the canonical chain and has been orphaned"></i>
+							</th>
+							<td><a v-bind:href="'/block/' + block.state_hash">${ block.height }</a></td>
+							<td><a v-bind:href="'/epoch/' + block.epoch">${ block.epoch }</a></td>
+							<td><a v-bind:href="'/block/' + block.state_hash">${ block.slot }</a></td>
+
+							<td>${ block.ts | fromNow }</td>
+							<td class="text-monospace">
+								<a v-bind:href="'/block/' + block.creator">${ block.creator.substr(0, 8) }...</a>
+							</td>
+							<td class="text-monospace">
+								<a v-bind:href="'/block/' + block.state_hash">${ block.state_hash.substr(0, 8) }...</a>
+							</td>
+							<td>${ block.user_commands_count }</td>
+							<td>${ block.snark_jobs_count }</td>
+							<td>${ block.coinbase | formatCurrency }</td>
+						</tr>
+						</tbody>
+					</table>
+					<small class="float-right"> Next update in ${updateIn}s</small>
+				</div>
+			</div>
+		</div>
+	</div>
+{{end}}

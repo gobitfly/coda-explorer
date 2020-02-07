@@ -83,7 +83,7 @@ func (cc *CodaClient) WatchNewBlocks(newBlockChan chan string) {
 
 		c, _, err := websocket.DefaultDialer.Dial("ws://"+cc.host, graphqlWsHeader)
 		if err != nil {
-			logger.Errorf("error connecting to websocket at %v: %w", cc.host, err)
+			logger.Errorf("error connecting to websocket at %v: %v", cc.host, err)
 			continue
 		}
 
@@ -102,7 +102,7 @@ func (cc *CodaClient) WatchNewBlocks(newBlockChan chan string) {
 
 		err = c.WriteMessage(websocket.TextMessage, []byte(queryMessage))
 		if err != nil {
-			logger.Errorf("error subscribing to newBlock events: %w", err)
+			logger.Errorf("error subscribing to newBlock events: %v", err)
 			c.Close()
 			continue
 		}
@@ -111,15 +111,16 @@ func (cc *CodaClient) WatchNewBlocks(newBlockChan chan string) {
 		for {
 			_, message, err := c.ReadMessage()
 			if err != nil {
-				logger.Errorf("error reading from websocket subscription: %w:", err)
+				logger.Errorf("error reading from websocket subscription: %v:", err)
 				break
 			}
-			logger.Infof("received %v via websocket subscriptions", string(message))
+			messageStr := strings.Replace(string(message), "\\", "", -1)
+			logger.Infof("received %v via websocket subscriptions", messageStr)
 
-			var parsedNotification *newBlockNotification
-			err = json.Unmarshal([]byte(strings.Replace(string(message), `\`, "", -1)), parsedNotification)
+			parsedNotification := &newBlockNotification{}
+			err = json.Unmarshal([]byte(messageStr), parsedNotification)
 			if err != nil {
-				logger.Errorf("error parsing new block notifciation: %w:", err)
+				logger.Errorf("error parsing new block notification: %v:", err)
 				break
 			}
 			newBlockChan <- parsedNotification.Payload.Data.NewBlock.StateHash

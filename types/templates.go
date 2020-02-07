@@ -15,3 +15,35 @@
  */
 
 package types
+
+// PageData is a struct to hold web page data
+type PageData struct {
+	Active             string
+	Meta               *Meta
+	ShowSyncingMessage bool
+	Data               interface{}
+	Version            string
+}
+
+// Meta is a struct to hold metadata about the page
+type Meta struct {
+	Title       string
+	Description string
+	Path        string
+	Tlabel1     string
+	Tdata1      string
+	Tlabel2     string
+	Tdata2      string
+}
+
+// IndexPageData is a struct to hold info for the main web page
+type IndexPageData struct {
+	CurrentEpoch     int      `json:"current_epoch"`
+	CurrentSlot      int      `json:"current_slot"`
+	CurrentHeight    int      `json:"current_height"`
+	ActiveValidators int      `json:"active_validators"`
+	ActiveWorkers    int      `json:"active_workers"`
+	TotalStaked      string   `json:"total_staked"`
+	TotalSupply      int      `json:"total_supply"`
+	Blocks           []*Block `json:"blocks"`
+}

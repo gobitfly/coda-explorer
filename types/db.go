@@ -23,21 +23,21 @@ import (
 
 // Block represents a row of the blocks db table
 type Block struct {
-	StateHash         string    `db:"statehash"`
-	Canonical         bool      `db:"canonical"`
-	PreviousStateHash string    `db:"previousstatehash"`
-	SnarkedLedgerHash string    `db:"snarkedledgerhash"`
-	StagedLedgerHash  string    `db:"stagedledgerhash"`
-	Coinbase          int       `db:"coinbase"`
-	Creator           string    `db:"creator"`
-	Slot              int       `db:"slot"`
-	Height            int       `db:"height"`
-	Epoch             int       `db:"epoch"`
-	Ts                time.Time `db:"ts"`
-	TotalCurrency     int       `db:"totalcurrency"`
-	UserCommandsCount int       `db:"usercommandscount"`
-	SnarkJobsCount    int       `db:"snarkjobscount"`
-	FeeTransferCount  int       `db:"feetransfercount"`
+	StateHash         string    `db:"statehash" json:"state_hash"`
+	Canonical         bool      `db:"canonical" json:"canonical"`
+	PreviousStateHash string    `db:"previousstatehash" json:"previous_state_hash"`
+	SnarkedLedgerHash string    `db:"snarkedledgerhash" json:"snarked_ledger_hash"`
+	StagedLedgerHash  string    `db:"stagedledgerhash" json:"staged_ledger_hash"`
+	Coinbase          int       `db:"coinbase" json:"coinbase"`
+	Creator           string    `db:"creator" json:"creator"`
+	Slot              int       `db:"slot" json:"slot"`
+	Height            int       `db:"height" json:"height"`
+	Epoch             int       `db:"epoch" json:"epoch"`
+	Ts                time.Time `db:"ts" json:"ts"`
+	TotalCurrency     int       `db:"totalcurrency" json:"total_currency"`
+	UserCommandsCount int       `db:"usercommandscount" json:"user_commands_count"`
+	SnarkJobsCount    int       `db:"snarkjobscount" json:"snark_jobs_count"`
+	FeeTransferCount  int       `db:"feetransfercount" json:"fee_transfer_count"`
 
 	SnarkJobs    []*SnarkJob
 	FeeTransfers []*FeeTransfer

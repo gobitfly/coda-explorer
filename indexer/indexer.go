@@ -40,7 +40,24 @@ func Start(rpcEndpoint string) {
 
 	go checkNewBlocks(newBlockChan, client, time.Minute)
 
+	go updateStatistics(time.Hour)
+
 	checkBlocks(client, 1000)
+}
+
+func updateStatistics(intv time.Duration) {
+	ticker := time.NewTicker(intv)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			err := db.GenerateAndSaveStatistics(time.Now().Add(time.Hour * 24 * -1))
+			if err != nil {
+				logger.Errorf("error generating statistics: %w", err)
+			}
+		}
+	}
 }
 
 // Periodically checks for forked or missing blocks
@@ -69,9 +86,9 @@ func checkBlocks(client *rpc.CodaClient, lookback int) {
 		logger.Errorf("error retrieving last %v blocks from the databases: %w", lookback, err)
 		return
 	}
-	dbBlocksMap := make(map[int]string)
+	dbBlocksMap := make(map[string]bool)
 	for _, b := range dbBlocks {
-		dbBlocksMap[b.Height] = b.StateHash
+		dbBlocksMap[b.StateHash] = true
 	}
 
 	nodeBlocks, err := client.GetLastBlocks(lookback)
@@ -80,7 +97,7 @@ func checkBlocks(client *rpc.CodaClient, lookback int) {
 		return
 	}
 	for _, b := range nodeBlocks {
-		_, present := dbBlocksMap[b.Height]
+		_, present := dbBlocksMap[b.StateHash]
 		if present {
 			// Block has already been properly indexed
 			continue

@@ -526,49 +526,49 @@ func GenerateAndSaveStatistics(date time.Time) error {
 
 	// Number of daily blocks produced
 	indicator := "BLOCK_COUNT"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(*) FROM blocks WHERE ts >= $2 AND ts <= $3  ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(*) FROM blocks WHERE ts >= $2 AND ts <= $3 AND canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
 	if err != nil {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
 	// Number of daily tx
 	indicator = "TX_COUNT"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COALESCE(SUM(usercommandscount), 0) FROM blocks WHERE ts >= $2 AND ts <= $3  ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COALESCE(SUM(usercommandscount), 0) FROM blocks WHERE ts >= $2 AND ts <= $3 AND canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
 	if err != nil {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
 	// Total supply
 	indicator = "TOTAL_SUPPLY"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COALESCE(MAX(totalcurrency), 0) FROM blocks WHERE ts >= $2 AND ts <= $3  ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COALESCE(MAX(totalcurrency), 0) FROM blocks WHERE ts >= $2 AND ts <= $3 AND canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
 	if err != nil {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
 	// Number of daily active block producers
 	indicator = "BLOCK_PRODUCERS"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(DISTINCT creator) FROM blocks WHERE ts >= $2 AND ts <= $3  ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(DISTINCT creator) FROM blocks WHERE ts >= $2 AND ts <= $3 AND canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
 	if err != nil {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
 	// Number of daily new accounts
 	indicator = "NEW_ACCOUNTS"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(*) FROM accounts WHERE firstseen >= $2 AND firstseen <= $3  ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(*) FROM accounts WHERE firstseen >= $2 AND firstseen <= $3 ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
 	if err != nil {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
 	// Number of daily active snark workers
 	indicator = "SNARK_WORKERS"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(DISTINCT prover) FROM snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3  ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COUNT(DISTINCT prover) FROM snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3 AND blocks.canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
 	if err != nil {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
 	// Number of daily coins spent on snarks
 	indicator = "SNARK_FEES"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COALESCE(SUM(fee), 0) FROM snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3  ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COALESCE(SUM(fee), 0) FROM snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3 AND blocks.canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
 	if err != nil {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}

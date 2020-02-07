@@ -18,16 +18,22 @@ package main
 
 import (
 	"coda-explorer/db"
-	"coda-explorer/indexer"
+	"coda-explorer/handlers"
+	"coda-explorer/services"
 	"coda-explorer/util"
 	"flag"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	"log"
+	"net/http"
 	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/gorilla/mux"
+	negronilogrus "github.com/meatballhat/negroni-logrus"
+	"github.com/phyber/negroni-gzip/gzip"
+	"github.com/urfave/negroni"
+	"github.com/zesik/proxyaddr"
 )
 
 var logger = logrus.New().WithField("module", "main")
@@ -39,7 +45,7 @@ func main() {
 	dbPassword := flag.String("dbPassword", "", "Database password")
 	dbName := flag.String("dbName", "", "Database name")
 
-	codaEndpoint := flag.String("coda", "localhost:3085/graphql", "CODA node graphql endpoint")
+	port := flag.Int("port", 3333, "Port to start the frontend http server on")
 
 	flag.Parse()
 
@@ -65,8 +71,50 @@ func main() {
 	db.DB = dbConn
 	defer db.DB.Close()
 
-	indexer.Start(*codaEndpoint)
+	router := mux.NewRouter()
+	router.HandleFunc("/", handlers.Index).Methods("GET")
+	router.HandleFunc("/index/data", handlers.IndexPageData).Methods("GET")
+
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
+
+	n := negroni.New(negroni.NewRecovery())
+
+	// Customize the logging middleware to include a proper module entry for the frontend
+	frontendLogger := negronilogrus.NewMiddleware()
+	frontendLogger.Before = func(entry *logrus.Entry, request *http.Request, s string) *logrus.Entry {
+		entry = negronilogrus.DefaultBefore(entry, request, s)
+		return entry.WithField("module", "frontend")
+	}
+	frontendLogger.After = func(entry *logrus.Entry, writer negroni.ResponseWriter, duration time.Duration, s string) *logrus.Entry {
+		entry = negronilogrus.DefaultAfter(entry, writer, duration, s)
+		return entry.WithField("module", "frontend")
+	}
+	n.Use(frontendLogger)
+
+	n.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	pa := &proxyaddr.ProxyAddr{}
+	pa.Init(proxyaddr.CIDRLoopback)
+	n.Use(pa)
+
+	n.UseHandler(router)
+
+	services.Init()
+
+	srv := &http.Server{
+		Addr:         fmt.Sprintf("0.0.0.0:%v", *port),
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      n,
+	}
+
+	log.Printf("http server listening on %v", srv.Addr)
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Println(err)
+		}
+	}()
 
 	util.WaitForCtrlC()
-
 }
