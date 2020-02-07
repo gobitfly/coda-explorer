@@ -74,6 +74,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", handlers.Index).Methods("GET")
 	router.HandleFunc("/index/data", handlers.IndexPageData).Methods("GET")
+	router.HandleFunc("/block/{hash}", handlers.Block).Methods("GET")
 	router.HandleFunc("/blocks", handlers.Blocks).Methods("GET")
 	router.HandleFunc("/blocks/data", handlers.BlocksData).Methods("GET")
 	router.HandleFunc("/status", handlers.Status).Methods("GET")

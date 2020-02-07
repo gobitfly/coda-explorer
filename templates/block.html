@@ -1,0 +1,192 @@
+{{ define "js"}}
+{{end}}
+
+{{ define "css"}}
+{{end}}
+
+{{ define "content"}}
+	<div class="mb-3">
+		<div class="d-md-flex py-2 justify-content-md-between">
+			<h1 class="h4 mb-1 mb-md-0">
+				<span class="ml-1 mr-1"><i class="fas fa-cube mr-2"></i>Block at Slot {{.Slot}}</span>
+			</h1>
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb font-size-1 mb-0" style="padding:0; background-color:transparent;">
+					<li class="breadcrumb-item"><a href="/" title="Home">Home</a></li>
+					<li class="breadcrumb-item"><a href="/blocks" title="Blocks">Blocks</a></li>
+					<li class="breadcrumb-item active" aria-current="page">Block details</li>
+				</ol>
+			</nav>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-body">
+			<div class="row border-bottom p-1">
+				<div class="col-md-12">
+					<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="pills-overview-tab" data-toggle="pill" href="#pills-overview" role="tab" aria-controls="pills-overview" aria-selected="true">Overview</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="pills-user-jobs-tab" data-toggle="pill" href="#pills-user-jobs" role="tab" aria-controls="pills-user-jobs" aria-selected="false">Transactions <span class="badge bg-secondary text-white">{{.UserCommandsCount}}</span></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="pills-snark-jobs-tab" data-toggle="pill" href="#pills-snark-jobs" role="tab" aria-controls="pills-snark-jobs" aria-selected="false">Snark Jobs <span class="badge bg-secondary text-white">{{.SnarkJobsCount}}</span></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="pills-fee-transfers-tab" data-toggle="pill" href="#pills-fee-transfers" role="tab" aria-controls="pills-fee-transfers" aria-selected="false">Fee Transfers <span class="badge bg-secondary text-white">{{.FeeTransferCount}}</span></a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="tab-content" id="pills-tabContent">
+				<div class="tab-pane fade show active" id="pills-overview" role="tabpanel"
+					 aria-labelledby="pills-overview-tab">
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Height:</div>
+						<div class="col-md-10">{{.Height}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Epoch:</div>
+						<div class="col-md-10"><a href="/epoch/{{.Epoch}}">{{.Epoch}}</a></div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Slot:</div>
+						<div class="col-md-10">{{.Slot}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Status:</div>
+						<div class="col-md-10">
+                            {{ if .Canonical}}
+								<i class="fas fa-check text-success mr-1"></i>Canonical
+                            {{else}}
+								<i class="fas fa-times text-danger mr-1"></i>Orphaned
+                            {{end}}
+						</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Time:</div>
+						<div class="col-md-10">{{.Ts}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Creator:</div>
+						<div class="col-md-10">{{.Creator}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">State Hash:</div>
+						<div class="col-md-10 text-monospace text-break">{{.StateHash}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Previous State Hash:</div>
+						<div class="col-md-10 text-monospace text-break">
+							<a href="/block/{{.PreviousStateHash}}">{{.PreviousStateHash}}</a>
+						</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Snarked Ledger Hash:</div>
+						<div class="col-md-10 text-monospace text-break">{{.SnarkedLedgerHash}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Staged Ledger Hash:</div>
+						<div class="col-md-10 text-monospace text-break">{{.StagedLedgerHash}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Coinbase:</div>
+						<div class="col-md-10">{{.Coinbase}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Total Currency:</div>
+						<div class="col-md-10">{{.TotalCurrency | intcomma}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Transactions:</div>
+						<div class="col-md-10">{{.UserCommandsCount}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Snark Jobs:</div>
+						<div class="col-md-10">{{.SnarkJobsCount}}</div>
+					</div>
+					<div class="row border-bottom p-3">
+						<div class="col-md-2">Fee Transfers:</div>
+						<div class="col-md-10">{{.FeeTransferCount}}</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="pills-user-jobs" role="tabpanel" aria-labelledby="pills-votes-tab">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+							<tr>
+								<th>ID</th>
+								<th>From</th>
+								<th>To</th>
+								<th>Amount</th>
+								<th>Fee</th>
+								<th>Memo</th>
+								<th>Nonce</th>
+								<th>Delegation</th>
+							</tr>
+							</thead>
+							<tbody>
+                            {{range $uj := .UserJobs}}
+								<tr>
+									<td><span class="text-monospace">{{printf "%.20v" $uj.ID}}...</span></td>
+									<td><span class="text-monospace">{{printf "%.20v" $uj.Sender}}...</span></td>
+									<td><span class="text-monospace">{{printf "%.20v" $uj.Recipient}}...</span></td>
+									<td>{{$uj.Amount}}</td>
+									<td>{{$uj.Fee}}</td>
+									<td>{{$uj.Memo}}</td>
+									<td>{{$uj.Nonce}}</td>
+									<td>{{$uj.Delegation}}</td>
+								</tr>
+                            {{end}}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="pills-snark-jobs" role="tabpanel" aria-labelledby="pills-snark-jobs-tab">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+							<tr>
+								<th>Jobids</th>
+								<th>Prover</th>
+								<th>Fee</th>
+							</tr>
+							</thead>
+							<tbody>
+                            {{range $sj := .SnarkJobs}}
+								<tr>
+									<td>{{$sj.Jobids}}</td>
+									<td><span class="text-monospace">{{printf "%.20v" $sj.Prover}}...</span></td>
+									<td>{{$sj.Fee}}</td>
+								</tr>
+                            {{end}}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="pills-fee-transfers" role="tabpanel" aria-labelledby="pills-fee-transfers-tab">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+							<tr>
+								<th>Recipient</th>
+								<th>Fee</th>
+							</tr>
+							</thead>
+							<tbody>
+                            {{range $ft := .FeeTransfers}}
+								<tr>
+									<td><span class="text-monospace">{{printf "%.20v" $ft.Recipient}}...</span></td>
+									<td>{{$ft.Fee}}</td>
+								</tr>
+                            {{end}}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{{end}}
