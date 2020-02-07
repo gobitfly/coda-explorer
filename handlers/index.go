@@ -40,7 +40,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			Description: "",
 			Path:        "",
 		},
-		ShowSyncingMessage: indexPageData.Blocks[0].Ts.Before(time.Now().Add(time.Hour * -1)),
+		ShowSyncingMessage: indexPageData.Blocks[0].Ts.Before(time.Now().Add(time.Hour * -12)),
 		Active:             "index",
 		Data:               indexPageData,
 		Version:            version.Version,
@@ -58,6 +58,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 // IndexPageData will show the main "index" page in json format
 func IndexPageData(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "public, max-age=15, s-maxage=15")
 
 	err := json.NewEncoder(w).Encode(services.LatestIndexPageData())
 
