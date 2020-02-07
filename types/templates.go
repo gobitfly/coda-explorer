@@ -47,3 +47,11 @@ type IndexPageData struct {
 	TotalSupply      int      `json:"total_supply"`
 	Blocks           []*Block `json:"blocks"`
 }
+
+// DataTableResponse is a struct to hold data for data table responses
+type DataTableResponse struct {
+	Draw            int64           `json:"draw"`
+	RecordsTotal    int64           `json:"recordsTotal"`
+	RecordsFiltered int64           `json:"recordsFiltered"`
+	Data            [][]interface{} `json:"data"`
+}
