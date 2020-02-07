@@ -17,14 +17,27 @@
 package templates
 
 import (
+	"fmt"
 	"html/template"
+	"time"
 
 	"github.com/leekchan/gtf"
 )
 
 func GetTemplateFuncs() template.FuncMap {
-	fm := template.FuncMap{}
+	fm := template.FuncMap{
+		"formatSeconds":      formatSeconds,
+		"formatMilliSeconds": formatMilliSeconds,
+	}
 
 	gtf.ForceInject(fm)
 	return fm
+}
+
+func formatSeconds(seconds int) string {
+	return fmt.Sprintf("%v", time.Second*time.Duration(seconds))
+}
+
+func formatMilliSeconds(ms int) string {
+	return fmt.Sprintf("%v", time.Millisecond*time.Duration(ms))
 }

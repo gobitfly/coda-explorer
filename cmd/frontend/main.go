@@ -76,6 +76,7 @@ func main() {
 	router.HandleFunc("/index/data", handlers.IndexPageData).Methods("GET")
 	router.HandleFunc("/blocks", handlers.Blocks).Methods("GET")
 	router.HandleFunc("/blocks/data", handlers.BlocksData).Methods("GET")
+	router.HandleFunc("/status", handlers.Status).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
 

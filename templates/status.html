@@ -1,0 +1,81 @@
+{{ define "js"}}
+{{end}}
+
+{{ define "css"}}
+{{end}}
+
+{{ define "content"}}
+	<div class="mb-3">
+		<div class="d-md-flex py-2 justify-content-md-between">
+			<h1 class="h4 mb-1 mb-md-0">
+				<span class="ml-1 mr-1"><i class="fas fa-info-circle mr-2"></i>Coda Daemon Status</span>
+			</h1>
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb font-size-1 mb-0" style="padding:0; background-color:transparent;">
+					<li class="breadcrumb-item"><a href="/" title="Home">Home</a></li>
+					<li class="breadcrumb-item active" aria-current="page">Status</li>
+				</ol>
+			</nav>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-body">
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Blockchain Length:</div>
+				<div class="col-md-10">{{.BlockchainLength}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Commit ID:</div>
+				<div class="col-md-10">{{.CommitID}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Epoch Duration:</div>
+				<div class="col-md-10">{{.EpochDuration | formatMilliSeconds}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Slot Duration:</div>
+				<div class="col-md-10">{{.SlotDuration | formatMilliSeconds}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Slots Per Epoch:</div>
+				<div class="col-md-10">{{.SlotsPerEpoch}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Consensus Mechanism:</div>
+				<div class="col-md-10">{{.ConsensusMechanism}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Highest Block Length Received:</div>
+				<div class="col-md-10">{{.HighestBlockLengthReceived}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Ledger Merkle Root:</div>
+				<div class="col-md-10" class="text-monospace">{{.LedgerMerkleRoot}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Accounts:</div>
+				<div class="col-md-10">{{.NumAccounts}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Peers:</div>
+				<div class="col-md-10">{{.Peers | join " "}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Peers Count:</div>
+				<div class="col-md-10">{{.PeersCount}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">State Hash:</div>
+                <div class="col-md-10"><a class="text-monospace" href="/block/{{.StateHash}}">{{.StateHash}}</a></div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Sync Status:</div>
+				<div class="col-md-10">{{.SyncStatus}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Uptime:</div>
+				<div class="col-md-10">{{.Uptime | formatSeconds}}</div>
+			</div>
+		</div>
+	</div>
+{{end}}

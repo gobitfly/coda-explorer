@@ -70,7 +70,7 @@
                         {{end}}
 					</li>
 					<li class="nav-item {{ if eq .Active "validators"}}active{{end}}">
-						<a class="nav-link" href="/accounts"><i class="fas fa-thumbs-up"></i> Accounts</a>
+						<a class="nav-link" href="/accounts"><i class="fas fa-user"></i> Accounts</a>
                         {{ if eq .Active "accounts"}}
 							<span class="nav-indicator"></span>
                         {{end}}
@@ -78,6 +78,12 @@
 					<li class="nav-item {{ if eq .Active "charts"}}active{{end}}">
 						<a class="nav-link" href="/charts"><i class="fas fa-chart-bar"></i> Charts</a>
                         {{ if eq .Active "charts"}}
+							<span class="nav-indicator"></span>
+                        {{end}}
+					</li>
+					<li class="nav-item {{ if eq .Active "status"}}active{{end}}">
+						<a class="nav-link" href="/status"><i class="fas fa-info-circle"></i> Status</a>
+                        {{ if eq .Active "status"}}
 							<span class="nav-indicator"></span>
                         {{end}}
 					</li>

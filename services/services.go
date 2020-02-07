@@ -110,7 +110,10 @@ func getIndexPageData() (*types.IndexPageData, error) {
 		return nil, fmt.Errorf("error retrieving active validators data: %w", err)
 	}
 
-	data.TotalStaked = "N/A"
+	err = db.DB.Get(&data.TotalStaked, "select sum(balance) from accounts where publickey in (select distinct creator from blocks where ts > now() - interval '1 day');")
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving total staked data: %w", err)
+	}
 
 	return data, nil
 }

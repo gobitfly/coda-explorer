@@ -53,14 +53,14 @@
                         targets: 5,
                         data: '5',
                         render: function (data, type, row, meta) {
-                            return '<a href="/account/' + data + '">0x' + data.substr(0, 8) + '...</a>'
+                            return '<a href="/account/' + data + '">' + data.substr(0, 8) + '...</a>'
                         }
                     },
                     {
                         targets: 6,
                         data: '6',
                         render: function (data, type, row, meta) {
-                            return '<a href="/block/' + data + '">0x' + data.substr(0, 8) + '...</a>'
+                            return '<a href="/block/' + data + '">' + data.substr(0, 8) + '...</a>'
                         }
                     }
                 ]

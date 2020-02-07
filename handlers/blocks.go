@@ -102,7 +102,7 @@ func BlocksData(w http.ResponseWriter, r *http.Request) {
 	err = db.DB.Select(&blocks, `SELECT *
 										FROM blocks 
 										WHERE blocks.height >= $1 AND blocks.height <= $2
-										ORDER BY blocks.height DESC`, endHeight, startHeight)
+										ORDER BY blocks.height DESC, canonical DESC`, endHeight, startHeight)
 
 	if err != nil {
 		logger.Errorf("error retrieving block data: %v", err)
