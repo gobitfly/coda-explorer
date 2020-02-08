@@ -21,6 +21,17 @@
 	</div>
 	<div class="card">
 		<div class="card-body">
+            {{if not .Canonical}}
+				<div class="row p-1">
+					<div class="col-md-12">
+						<div class="alert alert-danger">
+							<h4 class="alert-heading"><i class="fas fa-exclamation-triangle mr-1"></i>Block orphaned!</h4>
+							<p class="mb-0">This block has been orphaned and its transactions & snark jobs are not part of the canonical chain.</p>
+						</div>
+					</div>
+				</div>
+            {{end}}
+
 			<div class="row border-bottom p-1">
 				<div class="col-md-12">
 					<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
@@ -67,7 +78,7 @@
 					</div>
 					<div class="row border-bottom p-3">
 						<div class="col-md-2">Time:</div>
-						<div class="col-md-10">{{.Ts}}</div>
+						<div class="col-md-10">{{.Ts.Format "02 Jan 2006 15:04:05 MST"}}</div>
 					</div>
 					<div class="row border-bottom p-3">
 						<div class="col-md-2">Creator:</div>
@@ -122,21 +133,17 @@
 								<th>To</th>
 								<th>Amount</th>
 								<th>Fee</th>
-								<th>Memo</th>
-								<th>Nonce</th>
 								<th>Delegation</th>
 							</tr>
 							</thead>
 							<tbody>
                             {{range $uj := .UserJobs}}
 								<tr>
-									<td><span class="text-monospace">{{printf "%.20v" $uj.ID}}...</span></td>
-									<td><span class="text-monospace">{{printf "%.20v" $uj.Sender}}...</span></td>
-									<td><span class="text-monospace">{{printf "%.20v" $uj.Recipient}}...</span></td>
+									<td><a href="/tx/{{$uj.ID}}"><span class="text-monospace">{{printf "%.20v" $uj.ID}}...</span></a></td>
+									<td><a href="/account/{{$uj.Sender}}"><span class="text-monospace">{{printf "%.20v" $uj.Sender}}...</span></a></td>
+									<td><a href="/account/{{$uj.Recipient}}"><span class="text-monospace">{{printf "%.20v" $uj.Recipient}}...</span></a></td>
 									<td>{{$uj.Amount}}</td>
 									<td>{{$uj.Fee}}</td>
-									<td>{{$uj.Memo}}</td>
-									<td>{{$uj.Nonce}}</td>
 									<td>{{$uj.Delegation}}</td>
 								</tr>
                             {{end}}
@@ -149,7 +156,7 @@
 						<table class="table">
 							<thead>
 							<tr>
-								<th>Jobids</th>
+								<th>Job IDs</th>
 								<th>Prover</th>
 								<th>Fee</th>
 							</tr>
@@ -157,8 +164,8 @@
 							<tbody>
                             {{range $sj := .SnarkJobs}}
 								<tr>
-									<td>{{$sj.Jobids}}</td>
-									<td><span class="text-monospace">{{printf "%.20v" $sj.Prover}}...</span></td>
+									<td>{{$sj.Jobids | formatPGIntArray}}</td>
+									<td><a href="/account/{{$sj.Prover}}"><span class="text-monospace">{{printf "%.20v" $sj.Prover}}...</span></a></td>
 									<td>{{$sj.Fee}}</td>
 								</tr>
                             {{end}}
@@ -178,7 +185,7 @@
 							<tbody>
                             {{range $ft := .FeeTransfers}}
 								<tr>
-									<td><span class="text-monospace">{{printf "%.20v" $ft.Recipient}}...</span></td>
+									<td><a href="/account/{{$ft.Recipient}}"><span class="text-monospace">{{printf "%.20v" $ft.Recipient}}...</span></a></td>
 									<td>{{$ft.Fee}}</td>
 								</tr>
                             {{end}}

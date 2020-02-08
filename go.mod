@@ -3,6 +3,7 @@ module coda-explorer
 go 1.13
 
 require (
+	github.com/akamensky/base58 v0.0.0-20170920141933-92b0f56f531a
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/websocket v1.4.1
 	github.com/jmoiron/sqlx v1.2.0

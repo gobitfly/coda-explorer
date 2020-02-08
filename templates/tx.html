@@ -1,0 +1,66 @@
+{{ define "js"}}
+{{end}}
+
+{{ define "css"}}
+{{end}}
+
+{{ define "content"}}
+	<div class="mb-3">
+		<div class="d-md-flex py-2 justify-content-md-between">
+			<h1 class="h4 mb-1 mb-md-0">
+				<span class="ml-1 mr-1"><i class="fas fa-cube mr-2"></i>Tx {{printf "%.20v" .ID}}...</span>
+			</h1>
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb font-size-1 mb-0" style="padding:0; background-color:transparent;">
+					<li class="breadcrumb-item"><a href="/" title="Home">Home</a></li>
+					<li class="breadcrumb-item">Transactions</li>
+					<li class="breadcrumb-item active" aria-current="page">Transaction details</li>
+				</ol>
+			</nav>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-body">
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">ID:</div>
+				<div class="col-md-10"><span class="text-monospace">{{.ID}}</span></div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">From:</div>
+				<div class="col-md-10"><a href="/account/{{.Sender}}"><span class="text-monospace">{{printf "%.40v" .Sender}}...</span></a></div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">To:</div>
+				<div class="col-md-10"><a href="/account/{{.Recipient}}"><span class="text-monospace">{{printf "%.40v" .Recipient}}...</span></a></div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Amount:</div>
+				<div class="col-md-10">{{.Amount}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Fee:</div>
+				<div class="col-md-10">{{.Fee}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Included in block:</div>
+				<div class="col-md-10"><a href="/block/{{.BlockStateHash}}">{{.Height}}</a></div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Time:</div>
+				<div class="col-md-10">{{.Ts.Format "02 Jan 2006 15:04:05 MST"}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Memo:</div>
+				<div class="col-md-10">{{.Memo}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Nonce:</div>
+				<div class="col-md-10">{{.Nonce}}</div>
+			</div>
+			<div class="row border-bottom p-3">
+				<div class="col-md-2">Delegation:</div>
+				<div class="col-md-10">{{.Delegation}}</div>
+			</div>
+		</div>
+	</div>
+{{end}}

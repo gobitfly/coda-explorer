@@ -1,3 +1,5 @@
+github.com/akamensky/base58 v0.0.0-20170920141933-92b0f56f531a h1:ndZwlx4H28xTc2WeU9tsGyv+y8xBp2HH31x0xi41c7M=
+github.com/akamensky/base58 v0.0.0-20170920141933-92b0f56f531a/go.mod h1:dl0ldiQPIl8Io2dgdNbAtqeuq0Os0SxIGCn8IVGH3zo=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-sql-driver/mysql v1.4.0 h1:7LxgVwFb2hIQtMm87NdgAVfXjnt4OePseqT1tKx+opk=

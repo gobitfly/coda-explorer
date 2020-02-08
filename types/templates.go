@@ -16,6 +16,8 @@
 
 package types
 
+import "time"
+
 // PageData is a struct to hold web page data
 type PageData struct {
 	Active             string
@@ -54,4 +56,23 @@ type DataTableResponse struct {
 	RecordsTotal    int64           `json:"recordsTotal"`
 	RecordsFiltered int64           `json:"recordsFiltered"`
 	Data            [][]interface{} `json:"data"`
+}
+
+// TxPageData is a struct to hold data for transaction page
+type TxPageData struct {
+	BlockStateHash string    `db:"blockstatehash"`
+	Canonical      bool      `db:"canonical"`
+	Index          int       `db:"index"`
+	ID             string    `db:"id"`
+	Sender         string    `db:"sender"`
+	Recipient      string    `db:"recipient"`
+	Memo           string    `db:"memo"`
+	Fee            int       `db:"fee"`
+	Amount         int       `db:"amount"`
+	Nonce          int       `db:"nonce"`
+	Delegation     bool      `db:"delegation"`
+	Ts             time.Time `db:"ts"`
+	Slot           int       `db:"slot"`
+	Height         int       `db:"height"`
+	Epoch          int       `db:"epoch"`
 }
