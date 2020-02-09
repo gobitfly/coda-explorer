@@ -227,7 +227,7 @@
 								<i v-if="!block.canonical" class="fas fa-times text-danger" data-toggle="tooltip" data-placement="top" title="This block is not part of the canonical chain and has been orphaned"></i>
 							</th>
 							<td><a v-bind:href="'/block/' + block.state_hash">${ block.height }</a></td>
-							<td><a v-bind:href="'/epoch/' + block.epoch">${ block.epoch }</a></td>
+							<td>${ block.epoch }</td>
 							<td><a v-bind:href="'/block/' + block.state_hash">${ block.slot }</a></td>
 
 							<td  data-toggle="tooltip" data-placement="top" title="" v-bind:data-original-title="block.ts | formatDate">${ block.ts | fromNow }</td>

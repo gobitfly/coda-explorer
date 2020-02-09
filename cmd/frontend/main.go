@@ -78,6 +78,10 @@ func main() {
 	router.HandleFunc("/block/{hash}", handlers.Block).Methods("GET")
 	router.HandleFunc("/blocks", handlers.Blocks).Methods("GET")
 	router.HandleFunc("/blocks/data", handlers.BlocksData).Methods("GET")
+	router.HandleFunc("/account/{pk}", handlers.Account).Methods("GET")
+	router.HandleFunc("/account/{pk}/data_blocks", handlers.AccountBlocksData).Methods("GET")
+	router.HandleFunc("/accounts", handlers.Accounts).Methods("GET")
+	router.HandleFunc("/accounts/data", handlers.AccountsData).Methods("GET")
 	router.HandleFunc("/status", handlers.Status).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))

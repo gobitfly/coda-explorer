@@ -63,13 +63,7 @@
 							<span class="nav-indicator"></span>
                         {{end}}
 					</li>
-					<li class="nav-item {{ if eq .Active "epochs"}}active{{end}}">
-						<a class="nav-link" href="/epochs"><i class="fas fa-history"></i> Epochs</a>
-                        {{ if eq .Active "epochs"}}
-							<span class="nav-indicator"></span>
-                        {{end}}
-					</li>
-					<li class="nav-item {{ if eq .Active "validators"}}active{{end}}">
+					<li class="nav-item {{ if eq .Active "accounts"}}active{{end}}">
 						<a class="nav-link" href="/accounts"><i class="fas fa-user"></i> Accounts</a>
                         {{ if eq .Active "accounts"}}
 							<span class="nav-indicator"></span>

@@ -29,13 +29,6 @@
                         }
                     },
                     {
-                        targets: 2,
-                        data: '2',
-                        render: function (data, type, row, meta) {
-                            return '<a href="/epoch/' + data + '">' + data + '</a>'
-                        }
-                    },
-                    {
                         targets: 3,
                         data: '3',
                         render: function (data, type, row, meta) {
@@ -67,15 +60,13 @@
             })
         })
 	</script>
-{{end}} {{ define "css"}}
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
-	<style>
-		#blocktreechart {
-			height: 600px;
-		}
-	</style>
+{{end}}
 
-{{end}} {{ define "content"}}
+{{ define "css"}}
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
+{{end}}
+
+{{ define "content"}}
 	<div class="mb-3">
 		<div class="d-md-flex py-2 justify-content-md-between">
 			<h1 class="h4 mb-1 mb-md-0"><i class="fas fa-cubes mr-2"></i>Blocks</h1>

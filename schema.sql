@@ -102,6 +102,7 @@ create table if not exists accounts
     lastseen         timestamp    not null
 );
 create index idx_accounts_firstseen on accounts (firstseen);
+create index idx_accounts_balance on accounts (balance);
 
 create table if not exists accounttransactions
 (

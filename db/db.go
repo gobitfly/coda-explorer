@@ -178,6 +178,12 @@ func SaveBlock(block *types.Block) error {
 		}
 	}
 
+	logger.Infof("updating proposed blocks statistics table")
+	_, err = tx.Exec("UPDATE accounts SET blocksproposed = blocksproposed + 1 WHERE publickey = $1", block.Creator)
+	if err != nil {
+		return fmt.Errorf("error incrementing blocksproposed column of accounts table: %w", err)
+	}
+
 	logger.Infof("committing tx")
 
 	err = tx.Commit()
@@ -252,12 +258,6 @@ func MarkBlockCanonical(block *types.Block) error {
 		if err != nil {
 			return fmt.Errorf("error incrementing txreceived column of account table for pk %v: %w", uj.Recipient, err)
 		}
-	}
-
-	logger.Infof("updating proposed blocks statistics table")
-	_, err = tx.Exec("UPDATE accounts SET blocksproposed = blocksproposed + 1 WHERE publickey = $1", block.Creator)
-	if err != nil {
-		return fmt.Errorf("error incrementing blocksproposed column of accounts table: %w", err)
 	}
 
 	logger.Infof("committing tx")
