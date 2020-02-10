@@ -410,7 +410,7 @@ func RollbackBlock(block *types.Block) error {
 // GetBlockByHeight retrieves a block from the database by its canonical height
 func GetBlockByHeight(height int) (*types.Block, error) {
 	var stateHash string
-	err := DB.Get(&stateHash, "SELECT statehash FROM blocks WHERE height = $1", height)
+	err := DB.Get(&stateHash, "SELECT statehash FROM blocks WHERE height = $1 AND canonical", height)
 
 	if err != nil {
 		return nil, fmt.Errorf("error block at height %v not found: %w", height, err)

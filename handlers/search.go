@@ -19,6 +19,7 @@ package handlers
 import (
 	"coda-explorer/db"
 	"net/http"
+	"strconv"
 )
 
 // Search handles search requests
@@ -26,8 +27,15 @@ func Search(w http.ResponseWriter, r *http.Request) {
 
 	search := r.FormValue("search")
 
+	_, err := strconv.Atoi(search)
+
+	if err == nil {
+		http.Redirect(w, r, "/block/"+search, 301)
+		return
+	}
+
 	var resCount int
-	err := db.DB.Get(&resCount, "SELECT COUNT(*) FROM blocks WHERE statehash = $1", search)
+	err = db.DB.Get(&resCount, "SELECT COUNT(*) FROM blocks WHERE statehash = $1", search)
 	if resCount > 0 && err == nil {
 		http.Redirect(w, r, "/block/"+search, 301)
 		return

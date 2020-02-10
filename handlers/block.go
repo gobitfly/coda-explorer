@@ -24,6 +24,7 @@ import (
 	"github.com/gorilla/mux"
 	"html/template"
 	"net/http"
+	"strconv"
 )
 
 var blockTemplate = template.Must(template.New("blocks").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/block.html"))
@@ -47,7 +48,17 @@ func Block(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	hash := vars["hash"]
-	block, err := db.GetBlockByHash(hash)
+
+	blockHeight, err := strconv.Atoi(hash)
+
+	var block *types.Block
+
+	if err == nil {
+		block, err = db.GetBlockByHeight(blockHeight)
+	} else {
+		block, err = db.GetBlockByHash(hash)
+	}
+
 	if err != nil {
 		logger.Errorf("error retrieving block data for block %v: %v", hash, err)
 		http.Error(w, "Internal server error", 503)
