@@ -15,6 +15,8 @@
  */
 
 function drawChart(data, title, target, labelFormatter) {
+
+
     var options = {
         chart: {
             type: 'area',
@@ -30,7 +32,8 @@ function drawChart(data, title, target, labelFormatter) {
             },
             animations: {
                 enabled: false,
-            }
+            },
+            background: currentTheme === 'light' ? '' : 'rgb(38, 35, 39)' ,
         },
         dataLabels: {
             enabled: false
@@ -59,6 +62,10 @@ function drawChart(data, title, target, labelFormatter) {
             y: {
                 formatter: labelFormatter
             }
+        },
+        theme: {
+            mode: currentTheme === 'light' ? 'light' : 'dark',
+            palette: 'palette6'
         }
     }
 
