@@ -28,7 +28,7 @@ import (
 
 var txTemplate = template.Must(template.New("blocks").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/tx.html"))
 
-// Blocks will return information about blocks using a go template
+// Tx will return information about a transaction using a go template
 func Tx(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")

@@ -27,7 +27,7 @@ import (
 
 var statusTemplate = template.Must(template.New("index").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/status.html"))
 
-// Index will return the main "index" page using a go template
+// Status will return the "status" page using a go template
 func Status(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 

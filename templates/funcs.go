@@ -27,6 +27,7 @@ import (
 	"github.com/leekchan/gtf"
 )
 
+// GetTemplateFuncs returns helper functions used in the html templates
 func GetTemplateFuncs() template.FuncMap {
 	fm := template.FuncMap{
 		"formatSeconds":      formatSeconds,
@@ -39,18 +40,22 @@ func GetTemplateFuncs() template.FuncMap {
 	return fm
 }
 
+// Formats a duration in seconds
 func formatSeconds(seconds int) string {
 	return fmt.Sprintf("%v", time.Second*time.Duration(seconds))
 }
 
+// Formats a duration in milliseconds
 func formatMilliSeconds(ms int) string {
 	return fmt.Sprintf("%v", time.Millisecond*time.Duration(ms))
 }
 
+// Formats a array of int64 values (postgresql driver format)
 func formatPGIntArray(arr pq.Int64Array) string {
 	return strings.Trim(strings.Replace(fmt.Sprint(arr), " ", ", ", -1), "[]")
 }
 
+// Docodes a base58 encoded string
 func decodeBase58(encoded string) string {
 	decoded, _ := base58.Decode(encoded)
 	return string(decoded)

@@ -29,7 +29,7 @@ import (
 
 var accountsTemplate = template.Must(template.New("blocks").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/accounts.html"))
 
-// Blocks will return information about blocks using a go template
+// Accounts will return information about all accounts using a go template
 func Accounts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
@@ -55,7 +55,7 @@ func Accounts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// BlocksData will return information about blocks
+// AccountsData will return information about accounts
 func AccountsData(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

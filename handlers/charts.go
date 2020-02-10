@@ -28,6 +28,7 @@ import (
 // ChartBlocks will return information about the daily produced blocks using a go template
 var chartsTemplate = template.Must(template.New("blocks").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/charts.html"))
 
+// Charts returns the main chart view
 func Charts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")

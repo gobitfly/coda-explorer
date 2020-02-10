@@ -29,7 +29,7 @@ import (
 
 var blockTemplate = template.Must(template.New("blocks").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/block.html"))
 
-// Blocks will return information about blocks using a go template
+// Block will return information about a block using a go template
 func Block(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")

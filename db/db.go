@@ -190,6 +190,7 @@ func SaveBlock(block *types.Block) error {
 	return err
 }
 
+// MarkBlockCanonical marks a block as canonical in the database, also updates relevant statistics
 func MarkBlockCanonical(block *types.Block) error {
 	tx, err := DB.Beginx()
 
@@ -266,6 +267,7 @@ func MarkBlockCanonical(block *types.Block) error {
 	return err
 }
 
+// MarkBlockOrphaned marks a block as orphaned in the database, also updates relevant statistics
 func MarkBlockOrphaned(block *types.Block) error {
 	tx, err := DB.Beginx()
 

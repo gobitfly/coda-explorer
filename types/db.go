@@ -44,7 +44,7 @@ type Block struct {
 	UserJobs     []*UserJob
 }
 
-// ThinBlock is a helper type that contains only the hash, the parent hash, the height and the canonical status of a block
+// BlockHashNumber is a helper type that contains only the hash, the parent hash, the height and the canonical status of a block
 type BlockHashNumber struct {
 	StateHash         string `db:"statehash"`
 	Canonical         bool   `db:"canonical"`

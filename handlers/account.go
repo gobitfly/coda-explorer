@@ -30,7 +30,7 @@ import (
 
 var accountTemplate = template.Must(template.New("blocks").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/account.html"))
 
-// Blocks will return information about blocks using a go template
+// Account will return information about an account using a go template
 func Account(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
@@ -152,7 +152,7 @@ func AccountBlocksData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AccountBlocksData will return information about tx sent and received by an account
+// AccountTxData will return information about tx sent and received by an account
 func AccountTxData(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -237,7 +237,7 @@ func AccountTxData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AccountBlocksData will return information about blocks mined by an account
+// AccountSnarkJobsData will return information about snark jobs produced by an account
 func AccountSnarkJobsData(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
