@@ -40,6 +40,7 @@ func main() {
 	dbName := flag.String("dbName", "", "Database name")
 
 	codaEndpoint := flag.String("coda", "localhost:3085/graphql", "CODA node graphql endpoint")
+	startupLookback := flag.Int("startupLookback", 1000, "Check the last x blocks immediately after startup")
 
 	flag.Parse()
 
@@ -65,7 +66,7 @@ func main() {
 	db.DB = dbConn
 	defer db.DB.Close()
 
-	indexer.Start(*codaEndpoint)
+	indexer.Start(*codaEndpoint, *startupLookback)
 
 	util.WaitForCtrlC()
 

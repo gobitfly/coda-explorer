@@ -29,7 +29,7 @@ import (
 var logger = logrus.New().WithField("module", "indexer")
 
 // Start starts the indexing process
-func Start(rpcEndpoint string) {
+func Start(rpcEndpoint string, startupLookback int) {
 	client := rpc.NewCodaClient(rpcEndpoint)
 
 	newBlockChan := make(chan string)
@@ -42,7 +42,7 @@ func Start(rpcEndpoint string) {
 
 	go updateStatistics(time.Hour)
 
-	checkBlocks(client, 1000)
+	checkBlocks(client, startupLookback)
 }
 
 func updateStatistics(intv time.Duration) {
