@@ -130,7 +130,7 @@ type DaemonStatus struct {
 
 // Statistic represents a row of the statistics db table
 type Statistic struct {
-	Indicator string    `db:"indicator"`
-	Ts        time.Time `db:"ts"`
-	Value     float64   `db:"value"`
+	Indicator string    `db:"indicator" json:"indicator"`
+	Ts        time.Time `db:"ts" json:"ts"`
+	Value     float64   `db:"value" json:"value"`
 }

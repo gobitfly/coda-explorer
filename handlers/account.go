@@ -68,7 +68,7 @@ func Account(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// BlocksData will return information about blocks
+// AccountBlocksData will return information about blocks mined by an account
 func AccountBlocksData(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -101,14 +101,11 @@ func AccountBlocksData(w http.ResponseWriter, r *http.Request) {
 
 	var blocksCount int64
 
-	err = db.DB.Get(&blocksCount, "SELECT blocksproposed FROM accounts WHERE publickey = $1", pk)
+	err = db.DB.Get(&blocksCount, "SELECT least(blocksproposed, 10000) FROM accounts WHERE publickey = $1", pk)
 	if err != nil {
 		logger.Errorf("error retrieving blockproposed for account %v: %v", pk, err)
 		http.Error(w, "Internal server error", 503)
 		return
-	}
-	if blocksCount > 10000 {
-		blocksCount = 10000
 	}
 
 	var blocks []*types.Block
@@ -137,6 +134,172 @@ func AccountBlocksData(w http.ResponseWriter, r *http.Request) {
 			b.UserCommandsCount,
 			b.SnarkJobsCount,
 			b.Coinbase,
+		}
+	}
+
+	data := &types.DataTableResponse{
+		Draw:            draw,
+		RecordsTotal:    blocksCount,
+		RecordsFiltered: blocksCount,
+		Data:            tableData,
+	}
+
+	err = json.NewEncoder(w).Encode(data)
+	if err != nil {
+		logger.Errorf("error enconding json response for %v route: %v", r.URL.String(), err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+}
+
+// AccountBlocksData will return information about tx sent and received by an account
+func AccountTxData(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	q := r.URL.Query()
+
+	draw, err := strconv.ParseInt(q.Get("draw"), 10, 64)
+	if err != nil {
+		logger.Errorf("error converting datatables data parameter from string to int: %v", err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+	start, err := strconv.ParseInt(q.Get("start"), 10, 64)
+	if err != nil {
+		logger.Errorf("error converting datatables start parameter from string to int: %v", err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+	length, err := strconv.ParseInt(q.Get("length"), 10, 64)
+	if err != nil {
+		logger.Errorf("error converting datatables length parameter from string to int: %v", err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+	if length > 100 {
+		length = 100
+	}
+
+	vars := mux.Vars(r)
+	pk := vars["pk"]
+
+	var txCount int64
+
+	err = db.DB.Get(&txCount, "SELECT least(count(*), 10000) FROM accounttransactions WHERE publickey = $1 AND canonical", pk)
+	if err != nil {
+		logger.Errorf("error retrieving tx count for account %v: %v", pk, err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+
+	var txs []*types.TxPageData
+
+	err = db.DB.Select(&txs, `SELECT userjobs.*, blocks.height, blocks.slot, blocks.epoch, blocks.ts
+										FROM accounttransactions 
+										LEFT JOIN userjobs ON accounttransactions.blockstatehash = userjobs.blockstatehash AND accounttransactions.id = userjobs.id
+										LEFT JOIN blocks ON accounttransactions.blockstatehash = blocks.statehash
+										WHERE accounttransactions.publickey = $1 AND accounttransactions.canonical
+										ORDER BY ts DESC LIMIT $2 OFFSET $3`, pk, length, start)
+
+	if err != nil {
+		logger.Errorf("error retrieving tx data for account %v: %v", pk, err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+
+	tableData := make([][]interface{}, len(txs))
+	for i, tx := range txs {
+		tableData[i] = []interface{}{
+			tx.ID,
+			tx.Ts.Unix(),
+			tx.Height,
+			tx.Sender,
+			tx.Recipient,
+			tx.Amount,
+			tx.Fee,
+			tx.Delegation,
+			tx.BlockStateHash,
+		}
+	}
+
+	data := &types.DataTableResponse{
+		Draw:            draw,
+		RecordsTotal:    txCount,
+		RecordsFiltered: txCount,
+		Data:            tableData,
+	}
+
+	err = json.NewEncoder(w).Encode(data)
+	if err != nil {
+		logger.Errorf("error enconding json response for %v route: %v", r.URL.String(), err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+}
+
+// AccountBlocksData will return information about blocks mined by an account
+func AccountSnarkJobsData(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	q := r.URL.Query()
+
+	draw, err := strconv.ParseInt(q.Get("draw"), 10, 64)
+	if err != nil {
+		logger.Errorf("error converting datatables data parameter from string to int: %v", err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+	start, err := strconv.ParseInt(q.Get("start"), 10, 64)
+	if err != nil {
+		logger.Errorf("error converting datatables start parameter from string to int: %v", err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+	length, err := strconv.ParseInt(q.Get("length"), 10, 64)
+	if err != nil {
+		logger.Errorf("error converting datatables length parameter from string to int: %v", err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+	if length > 100 {
+		length = 100
+	}
+
+	vars := mux.Vars(r)
+	pk := vars["pk"]
+
+	var blocksCount int64
+
+	err = db.DB.Get(&blocksCount, "SELECT least(snarkjobs, 10000) FROM accounts WHERE publickey = $1", pk)
+	if err != nil {
+		logger.Errorf("error retrieving snarkjobs for account %v: %v", pk, err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+
+	var snarkJobs []*types.SnarkJobPageData
+
+	err = db.DB.Select(&snarkJobs, `SELECT snarkjobs.*, blocks.height, blocks.slot, blocks.epoch, blocks.ts
+										FROM snarkjobs 
+										LEFT JOIN blocks On snarkjobs.blockstatehash = blocks.statehash
+										WHERE prover = $1 AND snarkjobs.canonical
+										ORDER BY blocks.height DESC LIMIT $2 OFFSET $3`, pk, length, start)
+
+	if err != nil {
+		logger.Errorf("error retrieving snark job data for account %v: %v", pk, err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+
+	tableData := make([][]interface{}, len(snarkJobs))
+	for i, sj := range snarkJobs {
+		tableData[i] = []interface{}{
+			sj.Jobids,
+			sj.Prover,
+			sj.Fee,
+			sj.Ts.Unix(),
+			sj.Height,
+			sj.BlockStateHash,
 		}
 	}
 

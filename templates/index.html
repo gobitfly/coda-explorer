@@ -44,28 +44,6 @@
 {{ define "css"}}
 
 	<style>
-		.hero-container {
-			position: relative;
-			min-height: 250px;
-			width: 100%;
-			display: flex;
-			flex-direction: row-reverse;
-			align-items: center;
-			justify-content: center;
-			margin-top: 2rem;
-			margin-bottom: 1rem;
-			flex-wrap: wrap;
-			overflow: hidden;
-		}
-		.hero-image {
-			overflow: hidden;
-			flex: 1;
-			max-width: 500px;
-			min-width: 320px;
-			max-height: 400px;
-			min-height: 200px;
-		}
-
 		.hero-image svg {
 			overflow: hidden;
 			width: inherit;
@@ -78,6 +56,7 @@
 				width: 100%;
 				height: 100%;
 			}
+
 			.hero-container {
 				flex-wrap: nowrap;
 				flex-direction: column;
@@ -95,14 +74,6 @@
 			.hero-image svg {
 				opacity: 0.4;
 			}
-		}
-
-		.hero-text {
-			flex: 1;
-			min-width: 305px;
-			max-width: 500px;
-			z-index: 5;
-			border-radius: 5px;
 		}
 
 		[v-cloak] {
@@ -132,10 +103,12 @@
 						right: 25px;
 					}
 				</style>
-				<div class="input-group typeahead-holder">
-					<input id="search-input" class="form-control mr-2 form-control-md typeahead" type="text" name="search" placeholder="Search by Public Key / Block Number / Block Hash" />
+				<form class="input-group" action="/search" method="POST">
+					<input id="search-input" class="form-control mr-2 form-control-md" type="text" name="search" placeholder="Search by Public Key / Block Number / Block Hash"/>
 					<span class="fas fa-search"></span>
-				</div>
+
+				</form>
+
 			</div>
 		</div>
 		<div class="card mt-2">
@@ -145,16 +118,16 @@
 						<div class="d-flex justify-content-between">
 							<div class="p-2">
 								<div class="text-secondary mb-0">Epoch</div>
-								<h5 class="font-weight-normal mb-0"> <span data-toggle="tooltip" data-placement="top" title="The most recent epoch">${ page.current_epoch }</span></h5>
+								<h5 class="font-weight-normal mb-0"><span data-toggle="tooltip" data-placement="top" title="The most recent epoch">${ page.current_epoch }</span></h5>
 							</div>
 							<div class="text-center p-2">
-								<div class="text-secondary mb-0">Slot </div>
+								<div class="text-secondary mb-0">Slot</div>
 								<h5 class="font-weight-normal mb-0">
 									<span data-toggle="tooltip" data-placement="top" title="The most recent slot">${ page.current_slot }</span>
 								</h5>
 							</div>
 							<div class="text-right p-2">
-								<div class="text-secondary mb-0">Height </div>
+								<div class="text-secondary mb-0">Height</div>
 								<h5 class="font-weight-normal mb-0">
 									<span data-toggle="tooltip" data-placement="top" title="The total length of the blockchain">${ page.current_height }</span>
 								</h5>
@@ -164,13 +137,13 @@
 					<div class="col-md-4 responsive-border-right responsive-border-right-l">
 						<div class="d-flex justify-content-between">
 							<div class="p-2">
-								<div class="text-secondary mb-0">Active Validators </div>
+								<div class="text-secondary mb-0">Active Validators</div>
 								<h5 class="font-weight-normal mb-0">
 									<span data-toggle="tooltip" data-placement="top" title="The number of currently active validators">${ page.active_validators }</span>
 								</h5>
 							</div>
 							<div class="text-right p-2">
-								<div class="text-secondary mb-0">Active Workers </div>
+								<div class="text-secondary mb-0">Active Workers</div>
 								<h5 class="font-weight-normal mb-0">
 									<span data-toggle="tooltip" data-placement="top" title="The number of currently active snark workers">${ page.active_workers }</span>
 								</h5>
@@ -180,13 +153,13 @@
 					<div class="col-md-4">
 						<div class="d-flex justify-content-between">
 							<div class="p-2">
-								<div class="text-secondary mb-0">Staked Coda </div>
+								<div class="text-secondary mb-0">Staked Coda</div>
 								<h5 class="font-weight-normal mb-0">
 									<span data-toggle="tooltip" data-placement="top" title="Lower bound of the amount of coda currently staking">${ page.total_staked | formatCurrency }</span>
 								</h5>
 							</div>
 							<div class="text-right p-2">
-								<div class="text-secondary mb-0">Total supply </div>
+								<div class="text-secondary mb-0">Total supply</div>
 								<h5 class="font-weight-normal mb-0">
 									<span data-toggle="tooltip" data-placement="top" title="Total currency supply">${page.total_supply | formatCurrency }</span>
 								</h5>
@@ -230,9 +203,9 @@
 							<td>${ block.epoch }</td>
 							<td><a v-bind:href="'/block/' + block.state_hash">${ block.slot }</a></td>
 
-							<td  data-toggle="tooltip" data-placement="top" title="" v-bind:data-original-title="block.ts | formatDate">${ block.ts | fromNow }</td>
+							<td data-toggle="tooltip" data-placement="top" title="" v-bind:data-original-title="block.ts | formatDate">${ block.ts | fromNow }</td>
 							<td class="text-monospace">
-								<a v-bind:href="'/block/' + block.creator">${ block.creator.substr(0, 8) }...</a>
+								<a v-bind:href="'/account/' + block.creator">${ block.creator.substr(0, 8) }...</a>
 							</td>
 							<td class="text-monospace">
 								<a v-bind:href="'/block/' + block.state_hash">${ block.state_hash.substr(0, 8) }...</a>

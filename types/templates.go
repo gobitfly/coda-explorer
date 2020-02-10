@@ -16,7 +16,10 @@
 
 package types
 
-import "time"
+import (
+	"github.com/lib/pq"
+	"time"
+)
 
 // PageData is a struct to hold web page data
 type PageData struct {
@@ -58,7 +61,7 @@ type DataTableResponse struct {
 	Data            [][]interface{} `json:"data"`
 }
 
-// TxPageData is a struct to hold data for transaction page
+// TxPageData is a struct to hold data for transaction page & the transactions table on the account page
 type TxPageData struct {
 	BlockStateHash string    `db:"blockstatehash"`
 	Canonical      bool      `db:"canonical"`
@@ -75,4 +78,18 @@ type TxPageData struct {
 	Slot           int       `db:"slot"`
 	Height         int       `db:"height"`
 	Epoch          int       `db:"epoch"`
+}
+
+// SnarkJobPageData is a struct to hold data for the snarkjob table on the accounts page
+type SnarkJobPageData struct {
+	BlockStateHash string        `db:"blockstatehash"`
+	Canonical      bool          `db:"canonical"`
+	Index          int           `db:"index"`
+	Jobids         pq.Int64Array `db:"jobids"`
+	Prover         string        `db:"prover"`
+	Fee            int           `db:"fee"`
+	Ts             time.Time     `db:"ts"`
+	Slot           int           `db:"slot"`
+	Height         int           `db:"height"`
+	Epoch          int           `db:"epoch"`
 }

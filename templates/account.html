@@ -59,6 +59,82 @@
                 ]
             })
         })
+
+        $(document).ready(function () {
+            $('#user-jobs').DataTable({
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                searching: false,
+                ajax: '/account/{{.PublicKey}}/data_txs',
+                pagingType: 'full',
+                columnDefs: [
+                    {
+                        targets: 0,
+                        data: '0',
+                        render: function (data, type, row, meta) {
+                            return '<a href="/tx/' + data + '">' + data.substr(0, 16) + '...</a>'
+                        }
+                    }, {
+                        targets: 1,
+                        data: '1',
+                        render: function (data, type, row, meta) {
+                            return moment.unix(data).fromNow()
+                        }
+                    }, {
+                        targets: 2,
+                        data: '2',
+                        render: function (data, type, row, meta) {
+                            return '<a href="/block/' + row[8] + '">' + data + '</a>'
+                        }
+                    }, {
+                        targets: 3,
+                        data: '3',
+                        render: function (data, type, row, meta) {
+                            return '<a href="/account/' + data + '">' + data.substr(0, 16) + '...</a>'
+                        }
+                    }, {
+                        targets: 4,
+                        data: '4',
+                        render: function (data, type, row, meta) {
+                            return '<a href="/account/' + data + '">' + data.substr(0, 16) + '...</a>'
+                        }
+                    }
+                ]
+            })
+        })
+
+        $(document).ready(function () {
+            $('#snark-jobs').DataTable({
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                searching: false,
+                ajax: '/account/{{.PublicKey}}/data_snarkjobs',
+                pagingType: 'full',
+                columnDefs: [
+                    {
+                        targets: 1,
+                        data: '1',
+                        render: function (data, type, row, meta) {
+                            return '<a href="/account/' + data + '">' + data.substr(0, 16) + '...</a>'
+                        }
+                    }, {
+                        targets: 3,
+                        data: '3',
+                        render: function (data, type, row, meta) {
+                            return moment.unix(data).fromNow()
+                        }
+                    }, {
+                        targets: 4,
+                        data: '4',
+                        render: function (data, type, row, meta) {
+                            return '<a href="/block/' + row[5] + '">' + data + '</a>'
+                        }
+                    }
+                ]
+            })
+        })
 	</script>
 {{end}}
 
@@ -73,7 +149,7 @@
 	<div class="mb-3">
 		<div class="d-md-flex py-2 justify-content-md-between">
 			<h1 class="h4 mb-1 mb-md-0">
-				<span class="ml-1 mr-1"><i class="fas fa-cube mr-2"></i>Account {{.PublicKey}}</span>
+				<span class="ml-1 mr-1"><i class="fas fa-cube mr-2"></i>Account {{printf "%.32v" .PublicKey}}...</span>
 			</h1>
 			<nav aria-label="breadcrumb">
 				<ol class="breadcrumb font-size-1 mb-0" style="padding:0; background-color:transparent;">
@@ -161,7 +237,7 @@
 					</div>
 				</div>
 				<div class="tab-pane fade" id="pills-blocks" role="tabpanel" aria-labelledby="pills-blocks">
-					<div class="table-responsive">
+					<div class="table-responsive mt-1">
 						<table class="table table-sm" id="blocks" width="100%">
 							<thead>
 							<tr>
@@ -181,14 +257,36 @@
 						</table>
 					</div>
 				</div>
+				<div class="tab-pane fade" id="pills-user-jobs" role="tabpanel" aria-labelledby="pills-votes-tab">
+					<div class="table-responsive mt-1">
+						<table class="table table-sm" id="user-jobs" width="100%">
+							<thead>
+							<tr>
+								<th>ID</th>
+								<th>Time</th>
+								<th>Block</th>
+								<th>From</th>
+								<th>To</th>
+								<th>Amount</th>
+								<th>Fee</th>
+								<th>Delegation</th>
+							</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
 				<div class="tab-pane fade" id="pills-snark-jobs" role="tabpanel" aria-labelledby="pills-snark-jobs-tab">
 					<div class="table-responsive">
-						<table class="table">
+						<table class="table table-sm" id="snark-jobs" width="100%">
 							<thead>
 							<tr>
 								<th>Job IDs</th>
 								<th>Prover</th>
 								<th>Fee</th>
+								<th>Time</th>
+								<th>Block</th>
 							</tr>
 							</thead>
 							<tbody>

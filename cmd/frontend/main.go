@@ -80,9 +80,13 @@ func main() {
 	router.HandleFunc("/blocks/data", handlers.BlocksData).Methods("GET")
 	router.HandleFunc("/account/{pk}", handlers.Account).Methods("GET")
 	router.HandleFunc("/account/{pk}/data_blocks", handlers.AccountBlocksData).Methods("GET")
+	router.HandleFunc("/account/{pk}/data_txs", handlers.AccountTxData).Methods("GET")
+	router.HandleFunc("/account/{pk}/data_snarkjobs", handlers.AccountSnarkJobsData).Methods("GET")
 	router.HandleFunc("/accounts", handlers.Accounts).Methods("GET")
 	router.HandleFunc("/accounts/data", handlers.AccountsData).Methods("GET")
+	router.HandleFunc("/charts", handlers.Charts).Methods("GET")
 	router.HandleFunc("/status", handlers.Status).Methods("GET")
+	router.HandleFunc("/search", handlers.Search).Methods("POST")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
 

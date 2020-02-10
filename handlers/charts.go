@@ -25,11 +25,20 @@ import (
 	"net/http"
 )
 
-var statusTemplate = template.Must(template.New("index").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/status.html"))
+// ChartBlocks will return information about the daily produced blocks using a go template
+var chartsTemplate = template.Must(template.New("blocks").Funcs(templates.GetTemplateFuncs()).ParseFiles("templates/layout.html", "templates/charts.html"))
 
-// Index will return the main "index" page using a go template
-func Status(w http.ResponseWriter, r *http.Request) {
+func Charts(w http.ResponseWriter, r *http.Request) {
+
 	w.Header().Set("Content-Type", "text/html")
+
+	var stats []*types.Statistic
+	err := db.DB.Select(&stats, "SELECT * FROM statistics WHERE value > 0 ORDER BY ts, indicator")
+	if err != nil {
+		logger.Errorf("error retrieving statistcs data for route %v: %v", r.URL.String(), err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
 
 	data := &types.PageData{
 		Meta: &types.Meta{
@@ -38,20 +47,12 @@ func Status(w http.ResponseWriter, r *http.Request) {
 			Path:        "",
 		},
 		ShowSyncingMessage: false,
-		Active:             "status",
+		Active:             "charts",
+		Data:               stats,
 		Version:            version.Version,
 	}
 
-	status := &types.DaemonStatus{}
-	err := db.DB.Get(status, "SELECT * FROM daemonstatus ORDER BY ts DESC limit 1")
-	if err != nil {
-		logger.Errorf("error retrieving latest daemon status: %v", err)
-		http.Error(w, "Internal server error", 503)
-		return
-	}
-	data.Data = status
-
-	err = statusTemplate.ExecuteTemplate(w, "layout", data)
+	err = chartsTemplate.ExecuteTemplate(w, "layout", data)
 
 	if err != nil {
 		logger.Errorf("error executing template for %v route: %v", r.URL.String(), err)
