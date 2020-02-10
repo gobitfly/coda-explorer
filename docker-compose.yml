@@ -35,3 +35,15 @@ services:
       - "8303:8303"
     volumes:
       - ./coda-node-data:/root/
+  frontend:
+    image: gobitfly/coda-explorer:latest
+    command: ./frontend -dbHost postgres -dbUser postgres -dbName coda -dbPassword postgres -dbPort 5432
+    ports:
+      - "127.0.0.1:3333:3333"
+    restart: always
+    labels:
+      - "traefik.enable=true"
+  indexer:
+    image: gobitfly/coda-explorer:latest
+    command: ./indexer -dbHost postgres -dbUser postgres -dbName coda -dbPassword postgres -dbPort 5432 -coda coda:3085/graphql
+    restart: always

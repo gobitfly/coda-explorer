@@ -4,3 +4,4 @@ clean.sql
 coda-node-data/
 coda-postgres-data/
 modd.conf
+docker-compose-prod.yml
