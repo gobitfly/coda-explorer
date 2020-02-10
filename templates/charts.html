@@ -17,32 +17,55 @@
         const data = {{.}}
         const chartData = arrayToObject(data, "indicator")
 
-        drawChart([{name: "Daily Blocks", data: chartData["BLOCK_COUNT"]}], "Blocks Produced", "#chart-blocks", function (val) {
+		const charts = []
+        charts.push(drawChart([{name: "Daily Blocks", data: chartData["BLOCK_COUNT"]}], "Blocks Produced", "#chart-blocks", function (val) {
             return val;
-        })
-        drawChart([{name: "Daily Txs", data: chartData["TX_COUNT"]}], "Tx Processed", "#chart-txs", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "Daily Txs", data: chartData["TX_COUNT"]}], "Tx Processed", "#chart-txs", function (val) {
             return val;
-        })
-        drawChart([{name: "Total Supply", data: chartData["TOTAL_SUPPLY"]}], "Total Supply", "#chart-total-supply", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "Total Supply", data: chartData["TOTAL_SUPPLY"]}], "Total Supply", "#chart-total-supply", function (val) {
             return numbro(val).format({thousandSeparated: true});
-        })
-        drawChart([{name: "Block Producers", data: chartData["BLOCK_PRODUCERS"]}], "Active Block Producers", "#chart-block-producers", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "Block Producers", data: chartData["BLOCK_PRODUCERS"]}], "Active Block Producers", "#chart-block-producers", function (val) {
             return val;
-        })
-        drawChart([{name: "New Accounts", data: chartData["NEW_ACCOUNTS"]}], "New Accounts", "#chart-new-accounts", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "New Accounts", data: chartData["NEW_ACCOUNTS"]}], "New Accounts", "#chart-new-accounts", function (val) {
             return val;
-        })
-        drawChart([{name: "Snark Workers", data: chartData["SNARK_WORKERS"]}], "Snark Workers", "#chart-snark-workers", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "Snark Workers", data: chartData["SNARK_WORKERS"]}], "Snark Workers", "#chart-snark-workers", function (val) {
             return val;
-        })
-        drawChart([{name: "Snark Fees", data: chartData["SNARK_FEES"]}], "Snark Fees", "#chart-snark-fees", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "Snark Fees", data: chartData["SNARK_FEES"]}], "Snark Fees", "#chart-snark-fees", function (val) {
             return numbro(val).format({thousandSeparated: true});
-        })
-        drawChart([{name: "Total Staked", data: chartData["TOTAL_STAKED"]}], "Total Staked", "#chart-total-staked", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "Total Staked", data: chartData["TOTAL_STAKED"]}], "Total Staked", "#chart-total-staked", function (val) {
             return numbro(val).format({thousandSeparated: true});
-        })
-        drawChart([{name: "Peers Seen", data: chartData["PEERS"]}], "Peers Seen", "#chart-peers", function (val) {
+        }))
+
+        charts.push(drawChart([{name: "Peers Seen", data: chartData["PEERS"]}], "Peers Seen", "#chart-peers", function (val) {
             return val;
+        }))
+
+        $('#toggleSwitch').on('change', function(e) {
+            charts.forEach((chart) => {
+                chart.updateOptions({
+                    chart: {
+                        background: e.target.checked ? '' : 'rgb(38, 35, 39)' ,
+                    },
+                    theme: {
+                        mode: e.target.checked ? 'light' : 'dark',
+                        palette: 'palette6'
+                    }
+                })
+			})
         })
 	</script>
 {{end}}

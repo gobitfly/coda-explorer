@@ -69,6 +69,19 @@
             }
 		})
 
+
+        $('#toggleSwitch').on('change', function(e) {
+            chart.updateOptions({
+                chart: {
+                    background: e.target.checked ? '' : 'rgb(38, 35, 39)' ,
+                },
+                theme: {
+                    mode: e.target.checked ? 'light' : 'dark',
+                    palette: 'palette6'
+                }
+            })
+		})
+
 	</script>
 {{end}}
 {{ define "css"}}
