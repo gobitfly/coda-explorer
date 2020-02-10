@@ -62,3 +62,10 @@ We currently do not provide any pre-built binaries of the explorer. Docker image
 - Start the indexer and frontend binaries
 
 For a complete example please have a look at the included `docker-compose.yml` file
+
+## Included binaries
+The **indexer** binary is responsible for continously indexing the coda blockchain. If connects to a backend coda clients via its graphql api endpoint and periodically queries it for new blocks. If a new block or a chain reorganization is detected it will export any changed to the backend postgresql database. It also continously updated the chain statistics for the previous day.
+
+The **frontend** binary contains the whole web frontend. It is supplemented by the files in the static and template directory.
+
+The **statistics** binary is a helper utility that is used to re-generate the whole statistics (used on the /charts view)
