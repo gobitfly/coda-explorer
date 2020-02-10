@@ -17,6 +17,7 @@
 package handlers
 
 import (
+	"coda-explorer/db"
 	"coda-explorer/services"
 	"coda-explorer/templates"
 	"coda-explorer/types"
@@ -46,7 +47,16 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		Version:            version.Version,
 	}
 
-	err := indexTemplate.ExecuteTemplate(w, "layout", data)
+	var stats []*types.Statistic
+	err := db.DB.Select(&stats, "SELECT * FROM statistics WHERE value > 0 ORDER BY ts, indicator")
+	if err != nil {
+		logger.Errorf("error retrieving statistcs data for route %v: %v", r.URL.String(), err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+	indexPageData.ChartData = stats
+
+	err = indexTemplate.ExecuteTemplate(w, "layout", data)
 
 	if err != nil {
 		logger.Errorf("error executing template for %v route: %v", r.URL.String(), err)

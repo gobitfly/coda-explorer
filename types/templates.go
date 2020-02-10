@@ -43,14 +43,15 @@ type Meta struct {
 
 // IndexPageData is a struct to hold info for the main web page
 type IndexPageData struct {
-	CurrentEpoch     int      `json:"current_epoch"`
-	CurrentSlot      int      `json:"current_slot"`
-	CurrentHeight    int      `json:"current_height"`
-	ActiveValidators int      `json:"active_validators"`
-	ActiveWorkers    int      `json:"active_workers"`
-	TotalStaked      int      `json:"total_staked"`
-	TotalSupply      int      `json:"total_supply"`
-	Blocks           []*Block `json:"blocks"`
+	CurrentEpoch     int          `json:"current_epoch"`
+	CurrentSlot      int          `json:"current_slot"`
+	CurrentHeight    int          `json:"current_height"`
+	ActiveValidators int          `json:"active_validators"`
+	ActiveWorkers    int          `json:"active_workers"`
+	TotalStaked      int          `json:"total_staked"`
+	TotalSupply      int          `json:"total_supply"`
+	Blocks           []*Block     `json:"blocks"`
+	ChartData        []*Statistic `json:"-"`
 }
 
 // DataTableResponse is a struct to hold data for data table responses

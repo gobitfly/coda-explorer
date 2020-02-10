@@ -72,4 +72,6 @@ function drawChart(data, title, target, labelFormatter) {
     var chart = new ApexCharts(document.querySelector(target), options);
 
     chart.render();
+
+    return chart;
 }

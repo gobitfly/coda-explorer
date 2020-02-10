@@ -17,9 +17,6 @@
         const data = {{.}}
         const chartData = arrayToObject(data, "indicator")
 
-        console.log(chartData)
-
-
         drawChart([{name: "Daily Blocks", data: chartData["BLOCK_COUNT"]}], "Blocks Produced", "#chart-blocks", function (val) {
             return val;
         })

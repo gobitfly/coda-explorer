@@ -40,6 +40,36 @@
             }
         })
 	</script>
+
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="/js/chartHelper.js"></script>
+	<script>
+        const arrayToObject = (array, keyField) =>
+            array.reduce((obj, item) => {
+                if (!obj[item[keyField]]) {
+                    obj[item[keyField]] = []
+                }
+                obj[item[keyField]].push({
+                    x: item.ts,
+                    y: item.value
+                })
+                return obj
+            }, {})
+
+        const data = {{.ChartData}}
+        const chartData = arrayToObject(data, "indicator")
+        var chart = drawChart([{name: "Total Staked", data: chartData["TOTAL_STAKED"]}], "Staking History", "#chart-total-staked", function (val) {
+            return numbro(val).format({thousandSeparated: true});
+        })
+        chart.updateOptions({
+            chart: {
+                toolbar: {
+                    show: false
+                }
+            }
+		})
+
+	</script>
 {{end}}
 {{ define "css"}}
 
@@ -168,6 +198,8 @@
 					</div>
 				</div>
 			</div>
+
+			<div id="chart-total-staked" class="mt-2"></div>
 		</div>
 		<div class="card mt-2">
 			<div class="card-header">
