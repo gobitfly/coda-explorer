@@ -28,6 +28,9 @@ function drawChart(data, title, target, labelFormatter) {
             toolbar: {
                 autoSelected: 'zoom'
             },
+            animations: {
+                enabled: false,
+            }
         },
         dataLabels: {
             enabled: false
