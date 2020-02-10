@@ -41,6 +41,9 @@
         drawChart([{name: "Snark Fees", data: chartData["SNARK_FEES"]}], "Snark Fees", "#chart-snark-fees", function (val) {
             return numbro(val).format({thousandSeparated: true});
         })
+        drawChart([{name: "Total Staked", data: chartData["TOTAL_STAKED"]}], "Total Staked", "#chart-total-staked", function (val) {
+            return numbro(val).format({thousandSeparated: true});
+        })
         drawChart([{name: "Peers Seen", data: chartData["PEERS"]}], "Peers Seen", "#chart-peers", function (val) {
             return val;
         })
@@ -73,6 +76,7 @@
 			<div id="chart-new-accounts" class="border-bottom mb-2"></div>
 			<div id="chart-snark-workers" class="border-bottom mb-2"></div>
 			<div id="chart-snark-fees" class="border-bottom mb-2"></div>
+			<div id="chart-total-staked" class="border-bottom mb-2"></div>
 			<div id="chart-peers"></div>
 		</div>
 	</div>

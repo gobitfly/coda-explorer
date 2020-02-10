@@ -118,11 +118,6 @@ func getIndexPageData() (*types.IndexPageData, error) {
 	return data, nil
 }
 
-// LatestEpoch will return the latest epoch
-func LatestEpoch() uint64 {
-	return atomic.LoadUint64(&latestHeight)
-}
-
 // LatestIndexPageData returns the latest index page data
 func LatestIndexPageData() *types.IndexPageData {
 	return indexPageData.Load().(*types.IndexPageData)
