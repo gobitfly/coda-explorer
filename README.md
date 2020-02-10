@@ -1,7 +1,7 @@
 # Blockchain Explorer for the Coda Protocol
 The explorer provides a comprehensive and easy to use interface for the upcoming coda blockchain. It makes it easy to view blocks, follow transactions and monitor your snarking activity.
 
-[![Badge](https://github.com/gobitfly/coda-explorer/workflows/Build/badge.svg)](https://github.com/gobitfly/coda-explorer/actions?query=workflow%3A%22Build+%26+Publish+Docker+images%22)
+[![Badge](https://github.com/gobitfly/coda-explorer/workflows/Publish%20Docker%20images/badge.svg)](https://github.com/gobitfly/coda-explorer/actions?query=workflow%3A%22Build+%26+Publish+Docker+images%22)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gobitfly/coda-explorer)](https://goreportcard.com/report/github.com/gobitfly/coda-explorer)
 
 ## About
@@ -59,4 +59,6 @@ We currently do not provide any pre-built binaries of the explorer. Docker image
 - Setup a PostgreSQL DB and import the `schema.sql` file from the root of this repository
 - Install go version 1.13 or higher
 - Clone the repository and run `make all` to build the indexer and front-end binaries
-- Start the explorer binary and pass the path to the config file as argument
+- Start the indexer and frontend binaries
+
+For a complete example please have a look at the included `docker-compose.yml` file
