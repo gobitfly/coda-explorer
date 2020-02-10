@@ -122,7 +122,7 @@ func main() {
 		Handler:      n,
 	}
 
-	log.Printf("http server listening on %v", srv.Addr)
+	logger.Printf("http server listening on %v", srv.Addr)
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			log.Println(err)
