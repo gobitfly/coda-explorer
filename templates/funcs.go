@@ -34,6 +34,7 @@ func GetTemplateFuncs() template.FuncMap {
 		"formatMilliSeconds": formatMilliSeconds,
 		"formatPGIntArray":   formatPGIntArray,
 		"decodeBase58":       decodeBase58,
+		"joinHtml":           joinHtml,
 	}
 
 	gtf.ForceInject(fm)
@@ -59,4 +60,8 @@ func formatPGIntArray(arr pq.Int64Array) string {
 func decodeBase58(encoded string) string {
 	decoded, _ := base58.Decode(encoded)
 	return string(decoded)
+}
+
+func joinHtml(arg string, value []string) template.HTML {
+	return template.HTML(strings.Join(value, arg))
 }

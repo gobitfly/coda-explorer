@@ -40,53 +40,32 @@
             }
         })
 	</script>
-
-	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-	<script src="/js/chartHelper.js"></script>
-	<script>
-        const arrayToObject = (array, keyField) =>
-            array.reduce((obj, item) => {
-                if (!obj[item[keyField]]) {
-                    obj[item[keyField]] = []
-                }
-                obj[item[keyField]].push({
-                    x: item.ts,
-                    y: item.value
-                })
-                return obj
-            }, {})
-
-        const data = {{.ChartData}}
-        const chartData = arrayToObject(data, "indicator")
-        var chart = drawChart([{name: "Total Staked", data: chartData["TOTAL_STAKED"]}], "Staking History", "#chart-total-staked", function (val) {
-            return numbro(val).format({thousandSeparated: true});
-        })
-        chart.updateOptions({
-            chart: {
-                toolbar: {
-                    show: false
-                }
-            }
-		})
-
-
-        $('#toggleSwitch').on('change', function(e) {
-            chart.updateOptions({
-                chart: {
-                    background: e.target.checked ? '' : 'rgb(38, 35, 39)' ,
-                },
-                theme: {
-                    mode: e.target.checked ? 'light' : 'dark',
-                    palette: 'palette6'
-                }
-            })
-		})
-
-	</script>
 {{end}}
 {{ define "css"}}
 
 	<style>
+		.hero-container {
+			position: relative;
+			min-height: 250px;
+			width: 100%;
+			display: flex;
+			flex-direction: row-reverse;
+			align-items: center;
+			justify-content: center;
+			margin-top: 2rem;
+			margin-bottom: 1rem;
+			flex-wrap: wrap;
+			overflow: hidden;
+		}
+		.hero-image {
+			overflow: hidden;
+			flex: 1;
+			max-width: 500px;
+			min-width: 320px;
+			max-height: 400px;
+			min-height: 200px;
+		}
+
 		.hero-image svg {
 			overflow: hidden;
 			width: inherit;
@@ -99,7 +78,6 @@
 				width: 100%;
 				height: 100%;
 			}
-
 			.hero-container {
 				flex-wrap: nowrap;
 				flex-direction: column;
@@ -117,6 +95,14 @@
 			.hero-image svg {
 				opacity: 0.4;
 			}
+		}
+
+		.hero-text {
+			flex: 1;
+			min-width: 305px;
+			max-width: 500px;
+			z-index: 5;
+			border-radius: 5px;
 		}
 
 		[v-cloak] {
@@ -138,8 +124,19 @@
 {{end}}
 {{ define "content"}}
 	<div id="app" v-cloak>
-		<h1 class="mt-4 text-center">Open Source CODA Chain Explorer</h1>
-		<h5 class="text-center">Showing the <a href="https://codaprotocol.com/testnet">Coda Public Testnet</a></h5>
+		<div class="hero-container">
+			<div class="hero-image">
+				<img src="img/Developers.svg">
+			</div>
+			<div class="hero-text">
+				<h1 class="mt-4 text-center">Open Source CODA Chain Explorer</h1>
+				<h5 class="text-center">Showing the <a href="https://codaprotocol.com/testnet">Coda Public Testnet</a></h5>
+				<h6 class="text-center"><a href="https://bit.ly/CodaDiscord"><i class="fab fa-discord"></i> Discord</a> | <a href="https://github.com/coda/codaprotocol"><i class="fab fa-github"></i> Github</a> |
+					<a href="https://codaprotocol.com/genesis">Genesis Program</a>
+				</h6>
+			</div>
+		</div>
+
 		<div class="card">
 			<div class="card-body">
 				<style>
@@ -186,8 +183,14 @@
 									<span data-toggle="tooltip" data-placement="top" title="The number of currently active validators">${ page.active_validators }</span>
 								</h5>
 							</div>
+							<div class="text-center p-2">
+								<div class="text-secondary mb-0">Peers</div>
+								<h5 class="font-weight-normal mb-0">
+									<span data-toggle="tooltip" data-placement="top" title="The most recent slot">${ page.peers }</span>
+								</h5>
+							</div>
 							<div class="text-right p-2">
-								<div class="text-secondary mb-0">Active Workers</div>
+								<div class="text-secondary mb-0">Active Snark Workers</div>
 								<h5 class="font-weight-normal mb-0">
 									<span data-toggle="tooltip" data-placement="top" title="The number of currently active snark workers">${ page.active_workers }</span>
 								</h5>
@@ -212,8 +215,6 @@
 					</div>
 				</div>
 			</div>
-
-			<div id="chart-total-staked" class="mt-2"></div>
 		</div>
 		<div class="card mt-2">
 			<div class="card-header">
@@ -234,7 +235,7 @@
 							<th>Time</th>
 							<th>Creator</th>
 							<th>State Hash</th>
-							<th>User Jobs</th>
+							<th>Transactions</th>
 							<th>Snark Jobs</th>
 							<th>Reward</th>
 						</tr>

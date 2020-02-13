@@ -196,12 +196,12 @@
 						<div class="col-md-10">{{.Nonce}}</div>
 					</div>
 					<div class="row border-bottom p-3">
-						<div class="col-md-2">FirstSeen:</div>
-						<div class="col-md-10">{{.FirstSeen.Format "02 Jan 2006 15:04:05 MST"}}</div>
+						<div class="col-md-2">Added to Ledger:</div>
+						<div class="col-md-10"><span aria-local-date="{{.FirstSeen.Unix}}">{{.FirstSeen}}</span></div>
 					</div>
 					<div class="row border-bottom p-3">
-						<div class="col-md-2">LastSeen:</div>
-						<div class="col-md-10">{{.LastSeen.Format "02 Jan 2006 15:04:05 MST"}}</div>
+						<div class="col-md-2">Most Recent Activity:</div>
+						<div class="col-md-10"><span aria-local-date="{{.LastSeen.Unix}}">{{.LastSeen}}</span> (<span aria-local-date="{{.LastSeen.Unix}}" aria-local-date-format="FROMNOW"></span>)</div>
 					</div>
 					<div class="row border-bottom p-3">
 						<div class="col-md-2">Receipt Chain Hash:</div>
@@ -209,14 +209,12 @@
 					</div>
 					<div class="row border-bottom p-3">
 						<div class="col-md-2">Delegate:</div>
-						<div class="col-md-10 text-monospace text-break">
-							<a href="/account/{{.Delegate}}">{{.Delegate}}</a>
-						</div>
-					</div>
-					<div class="row border-bottom p-3">
-						<div class="col-md-2">Voting For:</div>
-						<div class="col-md-10 text-monospace text-break">
-							<a href="/account/{{.VotingFor}}">{{.VotingFor}}</a>
+						<div class="col-md-10 text-break">
+                            {{ if eq .Delegate .PublicKey}}
+								<span>Not delegating</span>
+                            {{else}}
+								<a class="text-monospace" href="/account/{{.Delegate}}">{{.Delegate}}</a>
+                            {{end}}
 						</div>
 					</div>
 					<div class="row border-bottom p-3">
@@ -228,7 +226,7 @@
 						<div class="col-md-10">{{.TxReceived}}</div>
 					</div>
 					<div class="row border-bottom p-3">
-						<div class="col-md-2">Blocks Proposed:</div>
+						<div class="col-md-2">Blocks Produced:</div>
 						<div class="col-md-10">{{.BlocksProposed}}</div>
 					</div>
 					<div class="row p-3">
@@ -283,7 +281,7 @@
 							<thead>
 							<tr>
 								<th>Job IDs</th>
-								<th>Prover</th>
+								<th>Snark Worker</th>
 								<th>Fee</th>
 								<th>Time</th>
 								<th>Block</th>

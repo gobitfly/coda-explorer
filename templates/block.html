@@ -78,11 +78,11 @@
 					</div>
 					<div class="row border-bottom p-3">
 						<div class="col-md-2">Time:</div>
-						<div class="col-md-10">{{.Ts.Format "02 Jan 2006 15:04:05 MST"}}</div>
+						<div class="col-md-10"><span aria-local-date="{{.Ts.Unix}}">{{.Ts}}</span></div>
 					</div>
 					<div class="row border-bottom p-3">
 						<div class="col-md-2">Creator:</div>
-						<div class="col-md-10">{{.Creator}}</div>
+						<div class="col-md-10"><a href="/account/{{.Creator}}">{{.Creator}}</a></div>
 					</div>
 					<div class="row border-bottom p-3">
 						<div class="col-md-2">State Hash:</div>
@@ -107,7 +107,7 @@
 						<div class="col-md-10">{{.Coinbase}}</div>
 					</div>
 					<div class="row border-bottom p-3">
-						<div class="col-md-2">Total Currency:</div>
+						<div class="col-md-2">Coda Supply:</div>
 						<div class="col-md-10">{{.TotalCurrency | intcomma}}</div>
 					</div>
 					<div class="row border-bottom p-3">

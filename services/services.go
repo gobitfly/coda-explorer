@@ -115,6 +115,11 @@ func getIndexPageData() (*types.IndexPageData, error) {
 		return nil, fmt.Errorf("error retrieving total staked data: %w", err)
 	}
 
+	err = db.DB.Get(&data.Peers, "select peerscount from daemonstatus order by ts desc limit 1;")
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving peerscount data: %w", err)
+	}
+
 	return data, nil
 }
 
