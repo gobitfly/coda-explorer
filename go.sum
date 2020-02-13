@@ -30,6 +30,8 @@ github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6Mwd
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
+github.com/tankbusta/go-ip2location v0.0.0-20160330022245-abd0501f28f8 h1:HVRn2tOYSvoJbzsJJdSGOw9Bj3XyERFRoLUnXypDl5I=
+github.com/tankbusta/go-ip2location v0.0.0-20160330022245-abd0501f28f8/go.mod h1:Yb7iDRJ9y0YCIZGWoLwiL6iwuiACyNK2u2o1rwy+b+o=
 github.com/urfave/negroni v1.0.0 h1:kIimOitoypq34K7TG7DUaJ9kq/N4Ofuwi1sjz0KipXc=
 github.com/urfave/negroni v1.0.0/go.mod h1:Meg73S6kFm/4PpbYdq35yYWoCZ9mS/YSx+lKnmiohz4=
 github.com/zesik/proxyaddr v0.0.0-20161218060608-ec32c535184d h1:Gsw/uTjNB2vkIEhBO3NAXjKo6QRY6D5B0GzMv980ses=

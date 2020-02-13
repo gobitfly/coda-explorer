@@ -24,16 +24,26 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/tankbusta/go-ip2location"
 )
 
 var latestHeight uint64
 var indexPageData atomic.Value
 var ready = sync.WaitGroup{}
+var GeoIpDb ip2location.IP2Location
 
 var logger = logrus.New().WithField("module", "services")
 
 // Init will initialize the services
 func Init() {
+
+	db, err := ip2location.NewIP2Location("ip2location/IP2LOCATION-LITE-DB1.BIN")
+	if err != nil {
+		logger.Fatalf("error opening ip2location database: %v", err)
+	}
+	GeoIpDb = db
+
 	ready.Add(2)
 	go heightUpdater()
 	go indexPageDataUpdater()

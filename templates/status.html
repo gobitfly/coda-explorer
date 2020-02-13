@@ -61,7 +61,7 @@
 				<div class="col-md-10">
 					<ul class="list-unstyled">
                         {{range $peer := .Peers}}
-							<li class="text-muted"><small>{{$peer}}</small></li>
+							<li class="text-muted"><small>{{$peer}} ({{ipToCountry $peer}})</small></li>
                         {{end}}
 					</ul>
 				</div>

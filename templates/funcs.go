@@ -17,9 +17,11 @@
 package templates
 
 import (
+	"coda-explorer/services"
 	"fmt"
 	"github.com/lib/pq"
 	"html/template"
+	"net"
 	"strings"
 	"time"
 
@@ -35,6 +37,7 @@ func GetTemplateFuncs() template.FuncMap {
 		"formatPGIntArray":   formatPGIntArray,
 		"decodeBase58":       decodeBase58,
 		"joinHtml":           joinHtml,
+		"ipToCountry":        ipToCountry,
 	}
 
 	gtf.ForceInject(fm)
@@ -64,4 +67,18 @@ func decodeBase58(encoded string) string {
 
 func joinHtml(arg string, value []string) template.HTML {
 	return template.HTML(strings.Join(value, arg))
+}
+
+func ipToCountry(peer string) string {
+	ip, _, err := net.SplitHostPort(peer)
+	if err != nil {
+		return ""
+	}
+
+	rec, err := services.GeoIpDb.GetRecord(ip)
+
+	if err != nil {
+		return ""
+	}
+	return rec.CountryLong
 }
