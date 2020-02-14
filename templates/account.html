@@ -71,31 +71,41 @@
                 columnDefs: [
                     {
                         targets: 0,
-                        data: '0',
                         render: function (data, type, row, meta) {
-                            return '<a href="/tx/' + data + '">' + data.substr(0, 16) + '...</a>'
+                            var pk = {{.PublicKey}};
+                            if (pk === row[4]) {
+                                return "<span class=\"badge bg-warning text-white mr-1\">OUT</span>"
+							} else {
+                                return "<span class=\"badge bg-success text-white mr-1\">IN</span>"
+							}
                         }
                     }, {
                         targets: 1,
                         data: '1',
                         render: function (data, type, row, meta) {
-                            return moment.unix(data).fromNow()
+                            return '<a href="/tx/' + data + '">' + data.substr(0, 16) + '...</a>'
                         }
                     }, {
                         targets: 2,
                         data: '2',
                         render: function (data, type, row, meta) {
-                            return '<a href="/block/' + row[8] + '">' + data + '</a>'
+                            return moment.unix(data).fromNow()
                         }
                     }, {
                         targets: 3,
                         data: '3',
                         render: function (data, type, row, meta) {
-                            return '<a href="/account/' + data + '">' + data.substr(0, 16) + '...</a>'
+                            return '<a href="/block/' + row[8] + '">' + data + '</a>'
                         }
                     }, {
                         targets: 4,
                         data: '4',
+                        render: function (data, type, row, meta) {
+                            return '<a href="/account/' + data + '">' + data.substr(0, 16) + '...</a>'
+                        }
+                    }, {
+                        targets: 5,
+                        data: '5',
                         render: function (data, type, row, meta) {
                             return '<a href="/account/' + data + '">' + data.substr(0, 16) + '...</a>'
                         }
@@ -260,6 +270,7 @@
 						<table class="table table-sm" id="user-jobs" width="100%">
 							<thead>
 							<tr>
+								<th></th>
 								<th>ID</th>
 								<th>Time</th>
 								<th>Block</th>

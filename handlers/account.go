@@ -210,6 +210,7 @@ func AccountTxData(w http.ResponseWriter, r *http.Request) {
 	tableData := make([][]interface{}, len(txs))
 	for i, tx := range txs {
 		tableData[i] = []interface{}{
+			"",
 			tx.ID,
 			tx.Ts.Unix(),
 			tx.Height,
