@@ -575,6 +575,34 @@ func GenerateAndSaveStatistics(date time.Time) error {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
+	// Snark fee median value
+	indicator = "SNARK_FEES_P50"
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, percentile_disc(0.5) within group (order by snarkjobs.fee) from snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3 AND blocks.canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	if err != nil {
+		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
+	}
+
+	// Snark fee P25 value
+	indicator = "SNARK_FEES_P25"
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, percentile_disc(0.25) within group (order by snarkjobs.fee) from snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3 AND blocks.canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	if err != nil {
+		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
+	}
+
+	// Snark fee P95 value
+	indicator = "SNARK_FEES_P95"
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, percentile_disc(0.95) within group (order by snarkjobs.fee) from snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3 AND blocks.canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	if err != nil {
+		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
+	}
+
+	// Snark fee P99 value
+	indicator = "SNARK_FEES_P99"
+	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, percentile_disc(0.99) within group (order by snarkjobs.fee) from snarkjobs LEFT JOIN blocks ON blocks.statehash = snarkjobs.blockstatehash WHERE blocks.ts >= $2 AND blocks.ts <= $3 AND blocks.canonical ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
+	if err != nil {
+		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
+	}
+
 	// Number of daily seen unique peers
 	indicator = "PEERS"
 	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) (SELECT $1, $2, COUNT(DISTINCT peer) FROM (SELECT UNNEST(peers) AS peer FROM daemonstatus WHERE ts >= $2 AND ts <= $3) AS a) ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
