@@ -49,7 +49,6 @@ type IndexPageData struct {
 	CurrentHeight    int      `json:"current_height"`
 	ActiveValidators int      `json:"active_validators"`
 	ActiveWorkers    int      `json:"active_workers"`
-	TotalStaked      int      `json:"total_staked"`
 	TotalSupply      int      `json:"total_supply"`
 	Peers            int      `json:"peers"`
 	Blocks           []*Block `json:"blocks"`

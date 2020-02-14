@@ -56,6 +56,10 @@ func updateStatistics(intv time.Duration) {
 			if err != nil {
 				logger.Errorf("error generating statistics: %w", err)
 			}
+			err = db.GenerateAndSaveStatistics(time.Now())
+			if err != nil {
+				logger.Errorf("error generating statistics: %w", err)
+			}
 		}
 	}
 }

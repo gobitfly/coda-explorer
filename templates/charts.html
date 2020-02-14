@@ -50,11 +50,7 @@
             return numbro(val).format({thousandSeparated: true});
         }))
 
-        charts.push(drawChart([{name: "Total Staked", data: chartData["TOTAL_STAKED"]}], "Total Staked", "#chart-total-staked", function (val) {
-            return numbro(val).format({thousandSeparated: true});
-        }))
-
-        charts.push(drawChart([{name: "Peers Seen", data: chartData["PEERS"]}], "Peers Seen", "#chart-peers", function (val) {
+        charts.push(drawChart([{name: "Daily Peers Seen", data: chartData["PEERS"]}], "Daily Peers Seen", "#chart-peers", function (val) {
             return val;
         }))
 
@@ -137,10 +133,10 @@
 			<div id="chart-new-accounts" class="border-bottom mb-2"></div>
 			<div id="chart-snark-workers" class="border-bottom mb-2"></div>
 			<div id="chart-snark-fees" class="border-bottom mb-2"></div>
-			<div id="chart-total-staked" class="border-bottom mb-2"></div>
 			<div id="chart-peers" class="border-bottom mb-2"></div>
 			<span class="ml-2" style="font-size: 14px; font-weight: 900; font-family: Helvetica, Arial, sans-serif; opacity: 1;">Peer Map</span>
 			<div id="map-peers" class="border-bottom mb-2" style="position: relative; margin: 0 auto; width: 750px; height: 500px;"></div>
+			<small class="text-muted">This site includes IP2Location LITE data available from <a href="https://lite.ip2location.com">https://lite.ip2location.com</a>.</small>
 		</div>
 	</div>
 {{end}}

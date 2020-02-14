@@ -582,13 +582,6 @@ func GenerateAndSaveStatistics(date time.Time) error {
 		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
 	}
 
-	// Total number of active staked coda per day
-	indicator = "TOTAL_STAKED"
-	_, err = tx.Exec(`INSERT INTO statistics (indicator, ts, value) SELECT $1, $2, COALESCE(sum(balance), 0) from accounts where publickey in (select distinct creator from blocks where ts >= $2 AND ts <= $3) ON CONFLICT (indicator, ts) DO UPDATE SET value = EXCLUDED.value;`, indicator, startDate, endDate)
-	if err != nil {
-		return fmt.Errorf("error executing %s statistics query for day %v: %w", indicator, startDate, err)
-	}
-
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("error committing statistics transaction for day %v: %w", startDate, err)
