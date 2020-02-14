@@ -18,10 +18,14 @@ package handlers
 
 import (
 	"coda-explorer/db"
+	"coda-explorer/services"
 	"coda-explorer/templates"
 	"coda-explorer/types"
 	"coda-explorer/version"
+	"fmt"
+	"github.com/lib/pq"
 	"html/template"
+	"net"
 	"net/http"
 )
 
@@ -33,12 +37,37 @@ func Charts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 
-	var stats []*types.Statistic
-	err := db.DB.Select(&stats, "SELECT * FROM statistics WHERE value > 0 ORDER BY ts, indicator")
+	pageData := &types.ChartsPageData{
+		Peers: make(map[string]*types.PeerInfoPageData),
+	}
+	err := db.DB.Select(&pageData.Statistics, "SELECT * FROM statistics WHERE value > 0 ORDER BY ts, indicator")
 	if err != nil {
 		logger.Errorf("error retrieving statistcs data for route %v: %v", r.URL.String(), err)
 		http.Error(w, "Internal server error", 503)
 		return
+	}
+
+	var peers pq.StringArray
+	err = db.DB.Get(&peers, "SELECT peers FROM daemonstatus ORDER BY ts DESC LIMIT 1")
+
+	for _, peer := range peers {
+		ip, _, err := net.SplitHostPort(peer)
+		if err != nil {
+			continue
+		}
+
+		rec, err := services.GeoIpDb.GetRecord(ip)
+
+		if err != nil {
+			continue
+		}
+
+		geoKey := fmt.Sprintf("%v;%v", rec.Latitude, rec.Longitude)
+		if pageData.Peers[geoKey] == nil {
+			pageData.Peers[geoKey] = &types.PeerInfoPageData{}
+		}
+		pageData.Peers[geoKey].PeerCount++
+		pageData.Peers[geoKey].Geo = &rec
 	}
 
 	data := &types.PageData{
@@ -49,7 +78,7 @@ func Charts(w http.ResponseWriter, r *http.Request) {
 		},
 		ShowSyncingMessage: false,
 		Active:             "charts",
-		Data:               stats,
+		Data:               pageData,
 		Version:            version.Version,
 	}
 

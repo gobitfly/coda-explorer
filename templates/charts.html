@@ -1,4 +1,8 @@
 {{ define "js"}}
+	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.9/datamaps.all.min.js" integrity="sha256-Lo7ue3BsvPrQ6MABnTPBDPysEwggoUeJiDKKAeKiDFY=" crossorigin="anonymous"></script>
+
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 	<script src="/js/chartHelper.js"></script>
 	<script>
@@ -14,7 +18,7 @@
                 return obj
             }, {})
 
-        const data = {{.}}
+        const data = {{.Statistics}}
         const chartData = arrayToObject(data, "indicator")
 
 		const charts = []
@@ -54,6 +58,40 @@
             return val;
         }))
 
+        const peers = {{.Peers}}
+        console.log(peers)
+        var map = new Datamap({
+        	element: document.getElementById('map-peers'),
+            scope: 'world',
+            geographyConfig: {
+                popupOnHover: false,
+                highlightOnHover: false
+            },
+            fills: {
+                defaultFill: '#ABDDA4',
+                PEER: 'blue',
+            }
+        });
+
+
+        var bubbles = []
+        for (var geoKey in peers) {
+            bubbles.push({
+                peerCount: peers[geoKey].PeerCount,
+                country: peers[geoKey].Geo.CountryLong,
+                city: peers[geoKey].Geo.City,
+                radius:  peers[geoKey].PeerCount * 1.5,
+                latitude: peers[geoKey].Geo.Latitude,
+                longitude: peers[geoKey].Geo.Longitude,
+                fillKey: 'PEER',
+            })
+		}
+        map.bubbles(bubbles, {
+            popupTemplate: function(geo, data) {
+                return '<div class="hoverinfo">' + data.country + ' - ' + data.city + ': ' + data.peerCount + ' peers</div>'
+            }
+        });
+
         $('#toggleSwitch').on('change', function(e) {
             charts.forEach((chart) => {
                 chart.updateOptions({
@@ -71,6 +109,9 @@
 {{end}}
 
 {{ define "css"}}
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+		  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+		  crossorigin=""/>
 {{end}}
 
 {{ define "content"}}
@@ -97,7 +138,9 @@
 			<div id="chart-snark-workers" class="border-bottom mb-2"></div>
 			<div id="chart-snark-fees" class="border-bottom mb-2"></div>
 			<div id="chart-total-staked" class="border-bottom mb-2"></div>
-			<div id="chart-peers"></div>
+			<div id="chart-peers" class="border-bottom mb-2"></div>
+			<span class="ml-2" style="font-size: 14px; font-weight: 900; font-family: Helvetica, Arial, sans-serif; opacity: 1;">Peer Map</span>
+			<div id="map-peers" class="border-bottom mb-2" style="position: relative; margin: 0 auto; width: 750px; height: 500px;"></div>
 		</div>
 	</div>
 {{end}}

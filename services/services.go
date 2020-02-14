@@ -38,7 +38,7 @@ var logger = logrus.New().WithField("module", "services")
 // Init will initialize the services
 func Init() {
 
-	db, err := ip2location.NewIP2Location("ip2location/IP2LOCATION-LITE-DB1.BIN")
+	db, err := ip2location.NewIP2Location("ip2location/IP2LOCATION-LITE-DB5.BIN")
 	if err != nil {
 		logger.Fatalf("error opening ip2location database: %v", err)
 	}

@@ -18,6 +18,7 @@ package types
 
 import (
 	"github.com/lib/pq"
+	"github.com/tankbusta/go-ip2location"
 	"time"
 )
 
@@ -93,4 +94,14 @@ type SnarkJobPageData struct {
 	Slot           int           `db:"slot"`
 	Height         int           `db:"height"`
 	Epoch          int           `db:"epoch"`
+}
+
+type ChartsPageData struct {
+	Statistics []*Statistic
+	Peers      map[string]*PeerInfoPageData
+}
+
+type PeerInfoPageData struct {
+	PeerCount int
+	Geo       *ip2location.IP2LocationEntry
 }
