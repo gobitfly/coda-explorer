@@ -317,7 +317,7 @@ type getBlocksResponse struct {
 // GetAccount retrieves account information by the account public key
 func (cc *CodaClient) GetAccount(publicKey string) (*types.Account, error) {
 
-	//logger.Printf("receiving data for account %v", publicKey)
+	logger.Printf("receiving data for account %v", publicKey)
 	query := `query {
   				account(publicKey: "` + publicKey + `") {
 					balance {
