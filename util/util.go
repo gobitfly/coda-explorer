@@ -17,10 +17,10 @@
 package util
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"runtime/debug"
 	"strconv"
 	"time"
 )
@@ -30,8 +30,7 @@ func MustParseInt(str string) int {
 	res, err := strconv.Atoi(str)
 
 	if err != nil {
-		debug.PrintStack()
-		log.Fatalf("error parsing string %v: %v", str, err)
+		panic(fmt.Sprintf("error parsing string %v: %v", str, err))
 	}
 
 	return res
