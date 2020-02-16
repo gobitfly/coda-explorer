@@ -338,6 +338,10 @@ func (cc *CodaClient) GetAccount(publicKey string) (*types.Account, error) {
 		return nil, fmt.Errorf("error executing get account graphql query: %w", err)
 	}
 
+	if resp.Data.Account.Nonce == "" { // For some accounts the node returns NULL as nonce
+		resp.Data.Account.Nonce = "0"
+	}
+
 	account := &types.Account{
 		PublicKey:        publicKey,
 		Balance:          util.MustParseInt(resp.Data.Account.Balance.Total),
