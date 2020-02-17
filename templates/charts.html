@@ -50,6 +50,15 @@
             return numbro(val).format({thousandSeparated: true});
         }))
 
+        charts.push(drawChart([
+            {name: "25% Percentile", data: chartData["SNARK_FEES_P25"]},
+            {name: "50% Percentile", data: chartData["SNARK_FEES_P50"]},
+            {name: "95% Percentile", data: chartData["SNARK_FEES_P95"]},
+            {name: "99% Percentile", data: chartData["SNARK_FEES_P99"]},
+            ], "Snark Fees Distribution", "#chart-snark-fees-distribution", function (val) {
+            return numbro(val).format({thousandSeparated: true});
+        }))
+
         charts.push(drawChart([{name: "Daily Peers Seen", data: chartData["PEERS"]}], "Daily Peers Seen", "#chart-peers", function (val) {
             return val;
         }))
@@ -133,6 +142,7 @@
 			<div id="chart-new-accounts" class="border-bottom mb-2"></div>
 			<div id="chart-snark-workers" class="border-bottom mb-2"></div>
 			<div id="chart-snark-fees" class="border-bottom mb-2"></div>
+			<div id="chart-snark-fees-distribution" class="border-bottom mb-2"></div>
 			<div id="chart-peers" class="border-bottom mb-2"></div>
 			<span class="ml-2" style="font-size: 14px; font-weight: 900; font-family: Helvetica, Arial, sans-serif; opacity: 1;">Peer Map</span>
 			<div id="map-peers" class="border-bottom mb-2" style="position: relative; margin: 0 auto; width: 750px; height: 500px;"></div>

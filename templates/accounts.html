@@ -5,7 +5,7 @@
             $('#blocks').DataTable({
                 processing: true,
                 serverSide: true,
-                ordering: false,
+                ordering: true,
                 searching: false,
                 ajax: '/accounts/data',
                 pagingType: 'full',
@@ -31,7 +31,8 @@
                             return moment.unix(data).fromNow()
                         }
                     }
-                ]
+                ],
+                order: [[1, 'desc']]
             })
         })
 	</script>

@@ -40,7 +40,7 @@ func Charts(w http.ResponseWriter, r *http.Request) {
 	pageData := &types.ChartsPageData{
 		Peers: make(map[string]*types.PeerInfoPageData),
 	}
-	err := db.DB.Select(&pageData.Statistics, "SELECT * FROM statistics WHERE value > 0 ORDER BY ts, indicator")
+	err := db.DB.Select(&pageData.Statistics, "SELECT * FROM statistics ORDER BY ts, indicator")
 	if err != nil {
 		logger.Errorf("error retrieving statistcs data for route %v: %v", r.URL.String(), err)
 		http.Error(w, "Internal server error", 503)

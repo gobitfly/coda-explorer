@@ -22,6 +22,7 @@ import (
 	"coda-explorer/types"
 	"coda-explorer/version"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -83,6 +84,27 @@ func AccountsData(w http.ResponseWriter, r *http.Request) {
 		length = 100
 	}
 
+	orderColumn := q.Get("order[0][column]")
+	orderByMap := map[string]string{
+		"0": "publickey",
+		"1": "balance",
+		"2": "firstseen",
+		"3": "lastseen",
+		"4": "blocksproposed",
+		"5": "snarkjobs",
+		"6": "txsent",
+		"7": "txreceived",
+	}
+	orderBy, exists := orderByMap[orderColumn]
+	if !exists {
+		orderBy = "balance"
+	}
+
+	orderDir := q.Get("order[0][dir]")
+	if orderDir != "desc" && orderDir != "asc" {
+		orderDir = "desc"
+	}
+
 	var accountsCount int64
 
 	err = db.DB.Get(&accountsCount, "SELECT COUNT(*) FROM accounts")
@@ -94,9 +116,9 @@ func AccountsData(w http.ResponseWriter, r *http.Request) {
 
 	var accounts []*types.Account
 
-	err = db.DB.Select(&accounts, `SELECT *
+	err = db.DB.Select(&accounts, fmt.Sprintf(`SELECT *
 										FROM accounts 
-										ORDER BY accounts.balance DESC LIMIT $1 OFFSET $2`, length, start)
+										ORDER BY %s %s LIMIT $1 OFFSET $2`, orderBy, orderDir), length, start)
 
 	if err != nil {
 		logger.Errorf("error retrieving accounts data: %v", err)
