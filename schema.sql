@@ -102,7 +102,13 @@ create table if not exists accounts
     lastseen         timestamp    not null
 );
 create index idx_accounts_firstseen on accounts (firstseen);
+create index idx_accounts_lastseen on accounts (lastseen);
 create index idx_accounts_balance on accounts (balance);
+create index idx_accounts_delegate on accounts (delegate);
+create index idx_accounts_txsent on accounts (txsent);
+create index idx_accounts_txreceived on accounts (txreceived);
+create index idx_accounts_blocksproposed on accounts (blocksproposed);
+create index idx_accounts_snarkjobs on accounts (snarkjobs);
 
 create table if not exists accounttransactions
 (

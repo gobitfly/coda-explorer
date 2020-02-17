@@ -104,3 +104,26 @@ type PeerInfoPageData struct {
 	PeerCount int
 	Geo       *ip2location.IP2LocationEntry
 }
+
+// AccountPageData is a struct to hold data for the  accounts page
+type AccountPageData struct {
+	PublicKey        string    `db:"publickey"`
+	Balance          int       `db:"balance"`
+	Nonce            int       `db:"nonce"`
+	ReceiptChainHash string    `db:"receiptchainhash"`
+	Delegate         string    `db:"delegate"`
+	VotingFor        string    `db:"votingfor"`
+	TxSent           int       `db:"txsent"`
+	TxReceived       int       `db:"txreceived"`
+	BlocksProposed   int       `db:"blocksproposed"`
+	SnarkJobs        int       `db:"snarkjobs"`
+	FirstSeen        time.Time `db:"firstseen"`
+	LastSeen         time.Time `db:"lastseen"`
+
+	Delegations []*AccountDelegations `db:"-"`
+}
+
+type AccountDelegations struct {
+	PublicKey string `db:"publickey"`
+	Balance   int    `db:"balance"`
+}

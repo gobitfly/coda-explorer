@@ -49,7 +49,7 @@ func Account(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	pk := vars["pk"]
-	account := &types.Account{}
+	account := &types.AccountPageData{}
 
 	err := db.DB.Get(account, "SELECT * FROM accounts WHERE publickey = $1", pk)
 	if err != nil {
@@ -57,6 +57,14 @@ func Account(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", 503)
 		return
 	}
+
+	err = db.DB.Select(&account.Delegations, "SELECT publickey, balance FROM accounts WHERE delegate = $1 AND publickey != $1", pk)
+	if err != nil {
+		logger.Errorf("error retrieving account delegation data for account %v: %v", pk, err)
+		http.Error(w, "Internal server error", 503)
+		return
+	}
+
 	data.Data = account
 
 	err = accountTemplate.ExecuteTemplate(w, "layout", data)

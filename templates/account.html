@@ -75,9 +75,9 @@
                             var pk = {{.PublicKey}};
                             if (pk === row[4]) {
                                 return "<span class=\"badge bg-warning text-white mr-1\">OUT</span>"
-							} else {
+                            } else {
                                 return "<span class=\"badge bg-success text-white mr-1\">IN</span>"
-							}
+                            }
                         }
                     }, {
                         targets: 1,
@@ -186,6 +186,9 @@
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" id="pills-snark-jobs-tab" data-toggle="pill" href="#pills-snark-jobs" role="tab" aria-controls="pills-snark-jobs" aria-selected="false">Snark Jobs <span class="badge bg-secondary text-white">{{.SnarkJobs}}</span></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="pills-delegations-tab" data-toggle="pill" href="#pills-delegations" role="tab" aria-controls="pills-delegations" aria-selected="false">Delegations <span class="badge bg-secondary text-white">{{.Delegations | len}}</span></a>
 						</li>
 					</ul>
 				</div>
@@ -302,6 +305,29 @@
 							</tbody>
 						</table>
 					</div>
+				</div>
+				<div class="tab-pane fade" id="pills-delegations" role="tabpanel" aria-labelledby="pills-delegations-tab">
+					<h6 class="mt-2">Found {{len .Delegations}} incoming delegations</h6>
+                    {{if gt (len .Delegations) 0}}
+						<div class="table-responsive">
+							<table class="table table-sm" id="delegations" width="100%">
+								<thead>
+								<tr>
+									<th>Public Key</th>
+									<th>Delegated Balance</th>
+								</tr>
+								</thead>
+								<tbody>
+                                {{range $account := .Delegations}}
+									<tr>
+										<td><a href="/account/{{$account.PublicKey}}">{{printf "%.32v" $account.PublicKey}}...</a></td>
+										<td>{{$account.Balance}}</td>
+									</tr>
+                                {{end}}
+								</tbody>
+							</table>
+						</div>
+                    {{end}}
 				</div>
 			</div>
 		</div>
