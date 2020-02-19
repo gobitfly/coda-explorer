@@ -22,6 +22,7 @@ import (
 	"coda-explorer/types"
 	"coda-explorer/version"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"html/template"
 	"net/http"
@@ -66,6 +67,8 @@ func Account(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Data = account
+	data.Meta.Path = fmt.Sprintf("/account/%v", pk)
+	data.Meta.Title = fmt.Sprintf("Account %.15v... - coda explorer", pk)
 
 	err = accountTemplate.ExecuteTemplate(w, "layout", data)
 
