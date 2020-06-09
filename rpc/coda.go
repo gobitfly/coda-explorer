@@ -35,7 +35,7 @@ import (
 
 var logger = logrus.New().WithField("module", "rpc")
 
-// CodaClient encapsulates all methods required to communicate with a coda blockchain node via the graphql api
+// CodaClient encapsulates all methods required to communicate with a Coda blockchain node via the graphql api
 type CodaClient struct {
 	httpClient *http.Client
 	host       string
