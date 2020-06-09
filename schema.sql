@@ -25,18 +25,18 @@ drop table statistics;
 
 create table if not exists blocks
 (
-    statehash         varchar(200) not null,
+    statehash         varchar(400) not null,
     canonical         bool         not null,
-    previousstatehash varchar(200) not null,
-    snarkedledgerhash varchar(200) not null,
-    stagedledgerhash  varchar(200) not null,
-    coinbase          int          not null,
+    previousstatehash varchar(400) not null,
+    snarkedledgerhash varchar(400) not null,
+    stagedledgerhash  varchar(400) not null,
+    coinbase          numeric      not null,
     creator           varchar(200) not null,
     slot              int          not null,
     height            int          not null,
     epoch             int          not null,
     ts                timestamp    not null,
-    totalcurrency     int          not null,
+    totalcurrency     numeric      not null,
     usercommandscount int          not null,
     snarkjobscount    int          not null,
     feetransfercount  int          not null,
@@ -48,7 +48,7 @@ create index idx_blocks_height on blocks (height);
 
 create table if not exists snarkjobs
 (
-    blockstatehash varchar(200) not null,
+    blockstatehash varchar(400) not null,
     canonical      bool         not null,
     index          int          not null,
     jobids         int[]        not null,
@@ -60,7 +60,7 @@ create index idx_snarkjobs_prover on snarkjobs (prover);
 
 create table if not exists feetransfers
 (
-    blockstatehash varchar(200) not null,
+    blockstatehash varchar(400) not null,
     canonical      bool         not null,
     index          int          not null,
     recipient      varchar(200) not null,
@@ -71,17 +71,17 @@ create index idx_feetransfers_recipient on feetransfers (recipient);
 
 create table if not exists userjobs
 (
-    blockstatehash varchar(200)  not null,
-    canonical      bool          not null,
-    index          int           not null,
-    id             varchar(1000) not null,
-    sender         varchar(200)  not null,
-    recipient      varchar(200)  not null,
-    memo           varchar(200)  not null,
-    fee            int           not null,
-    amount         int           not null,
-    nonce          varchar(200)  not null,
-    delegation     bool          not null,
+    blockstatehash varchar(400) not null,
+    canonical      bool         not null,
+    index          int          not null,
+    id             text         not null,
+    sender         varchar(200) not null,
+    recipient      varchar(200) not null,
+    memo           varchar(200) not null,
+    fee            numeric      not null,
+    amount         numeric      not null,
+    nonce          varchar(200) not null,
+    delegation     bool         not null,
     primary key (blockstatehash, index)
 );
 create index idx_userjobs_id on userjobs (id);
@@ -89,9 +89,9 @@ create index idx_userjobs_id on userjobs (id);
 create table if not exists accounts
 (
     publickey        varchar(200) not null primary key,
-    balance          int          not null,
+    balance          numeric      not null,
     nonce            int          not null,
-    receiptchainhash varchar(200) not null,
+    receiptchainhash varchar(400) not null,
     delegate         varchar(200) not null,
     votingfor        varchar(200) not null,
     txsent           int          not null,
@@ -113,9 +113,9 @@ create index idx_accounts_snarkjobs on accounts (snarkjobs);
 create table if not exists accounttransactions
 (
     publickey      varchar(200)  not null,
-    blockstatehash varchar(200)  not null,
+    blockstatehash varchar(400)  not null,
     canonical      bool          not null,
-    id             varchar(1000) not null,
+    id             text not null,
     ts             timestamp     not null,
     primary key (publickey, ts, blockstatehash, id)
 );
@@ -131,11 +131,11 @@ create table if not exists daemonstatus
     slotsperepoch              int          not null,
     consensusmechanism         varchar(200) not null,
     highestblocklengthreceived int          not null,
-    ledgermerkleroot           varchar(200) not null,
+    ledgermerkleroot           varchar(400) not null,
     numaccounts                int          not null,
     peers                      text[]       not null,
     peerscount                 int          not null,
-    statehash                  varchar(200) not null,
+    statehash                  varchar(400) not null,
     syncstatus                 varchar(200) not null,
     uptime                     int          not null
 );

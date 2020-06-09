@@ -1,5 +1,5 @@
 FROM golang:alpine AS build-env
-RUN apk --no-cache add build-base git bzr mercurial gcc npm
+RUN apk --no-cache add build-base git mercurial gcc npm
 ADD . /src
 RUN cd /src && make -B all
 
