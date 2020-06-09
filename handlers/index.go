@@ -36,7 +36,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	indexPageData := services.LatestIndexPageData()
 	data := &types.PageData{
 		Meta: &types.Meta{
-			Title:       "coda explorer",
+			Title:       "Index - Coda Blockchain Explorer by bitfly",
 			Description: "",
 			Path:        "",
 		},

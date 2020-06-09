@@ -37,7 +37,7 @@ func Accounts(w http.ResponseWriter, r *http.Request) {
 
 	data := &types.PageData{
 		Meta: &types.Meta{
-			Title:       "coda explorer",
+			Title:       "Accounts - Coda Blockchain Explorer by bitfly",
 			Description: "",
 			Path:        "",
 		},
