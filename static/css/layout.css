@@ -1,3 +1,12 @@
+:root {
+  --hero-image: url("img/Coda_Builder_Desktop_LM_Image.png");
+  --hero-bg-blend: multiply;
+}
+[data-theme="dark"] {
+  --hero-image: url("img/Coda_Builder_Desktop_DM_Image.png");
+  --hero-bg-blend: overlay;
+}
+
 .theme-switch-wrapper {
   position: relative;
   display: contents;
@@ -371,3 +380,5 @@ a.at-button.toggle-icon {
   top: 13.5px;
   color: grey;
 }
+
+

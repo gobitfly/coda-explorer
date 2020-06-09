@@ -56,28 +56,15 @@
 			margin-bottom: 1rem;
 			flex-wrap: wrap;
 			overflow: hidden;
-		}
-		.hero-image {
-			overflow: hidden;
-			flex: 1;
-			max-width: 500px;
-			min-width: 320px;
-			max-height: 400px;
-			min-height: 200px;
-		}
-
-		.hero-image svg {
-			overflow: hidden;
-			width: inherit;
-			height: inherit;
+			background: var(--hero-image, url("img/Coda_Builder_Desktop_DM_Image.png"));
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-color: var(--bg-color);
+			background-blend-mode: var(--hero-bg-blend, unset);
+			box-shadow: 0 0 8px 8px var(--bg-color) inset;
 		}
 
 		@media (max-width: 960px) {
-			.hero-image {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-			}
 			.hero-container {
 				flex-wrap: nowrap;
 				flex-direction: column;
@@ -90,10 +77,6 @@
 				justify-content: center;
 				align-items: center;
 				flex-direction: column;
-			}
-
-			.hero-image svg {
-				opacity: 0.4;
 			}
 		}
 
@@ -125,9 +108,6 @@
 {{ define "content"}}
 	<div id="app" v-cloak>
 		<div class="hero-container">
-			<div class="hero-image">
-				<img src="img/Coda_Builder_Desktop_DM_Image.png" class="img-fluid">
-			</div>
 			<div class="hero-text">
 				<h1 class="mt-4 text-center">Open Source CODA Chain Explorer</h1>
 				<h5 class="text-center">Showing the <a href="https://codaprotocol.com/testnet">Coda Public Testnet</a></h5>
