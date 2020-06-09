@@ -145,7 +145,7 @@ type newBlockNotification struct {
 func (cc *CodaClient) GetLastBlocks(lookback int) ([]*types.Block, error) {
 
 	query := `{
-				blocks(first: ` + strconv.Itoa(lookback) + `) {
+				blocks(last: ` + strconv.Itoa(lookback) + `) {
 					nodes {
 						stateHash
 						protocolState {
