@@ -172,6 +172,7 @@ func checkBlocks(client *rpc.CodaClient, lookback int) {
 		}
 	}
 
+	logger.Infof("block check completed")
 }
 
 // Exports a block to the database, does nothing if the block has already previously been exported
